@@ -14,11 +14,15 @@ import {
   Image as ImageIcon,
   Layers3,
   Menu,
+  FileVideo,
+  Mic2,
   Pencil,
   Plus,
   Radio,
+  ScanText,
   Search,
   ShieldCheck,
+  Trash2,
   Sparkles,
   Upload,
   Volume2,
@@ -50,6 +54,7 @@ import {
   type LectureSection,
   type VisualHighlight,
 } from "@/lib/lecture";
+import { canGenerateFromMedia, formatFileSize, makeMediaAsset, mediaKindLabel, mediaStatusCopy, visualFromImage, type MediaAsset } from "@/lib/media";
 
 const navItems = [
   { label: "Notebook", icon: BookOpen, count: (note: LectureNote) => note.sections.length },
@@ -74,8 +79,10 @@ export default function Home() {
   const [paused, setPaused] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [frames, setFrames] = useState<VisualHighlight[]>([]);
+  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [mobileOpen, setMobileOpen] = useState(false);
   const uploadRef = useRef<HTMLInputElement>(null);
+  const mediaRef = useRef<HTMLInputElement>(null);
 
   const filteredTranscript = useMemo(() => filterTranscript(note.transcript, query), [note.transcript, query]);
   const progress = getCompletionPercent(note);
@@ -143,6 +150,25 @@ export default function Home() {
     } catch {
       return null;
     }
+  }
+
+  function handleMediaFiles(files: FileList | null) {
+    if (!files) return;
+    const nextAssets = Array.from(files).map(makeMediaAsset).filter(Boolean) as MediaAsset[];
+    if (!nextAssets.length) { notify("No supported media files selected."); return; }
+    setMediaAssets((current) => [...current, ...nextAssets]);
+    const imageVisuals = nextAssets.filter((asset) => asset.kind === "image").map((asset) => visualFromImage(asset));
+    if (imageVisuals.length) updateNote({ visualHighlights: [...note.visualHighlights, ...imageVisuals] });
+    notify(`${nextAssets.length} media asset${nextAssets.length === 1 ? "" : "s"} added. Audio/video still needs a transcript in this local build.`);
+  }
+
+  function removeMediaAsset(id: string) {
+    setMediaAssets((current) => current.filter((asset) => asset.id !== id));
+  }
+
+  function printNotebook() {
+    notify("Opening print dialog — choose Save to PDF.");
+    window.setTimeout(() => window.print(), 120);
   }
 
   function beginCapture() {
@@ -239,7 +265,7 @@ export default function Home() {
 
           <div className="content-grid">
             <section className="notebook-column">
-              <div className="content-toolbar"><div><div className="eyebrow">CURRENT NOTEBOOK</div><div className="notebook-title-line"><h2>{note.title}</h2><span className="source-chip"><CheckCircle2 size={13} /> Grounded</span></div></div><div className="toolbar-actions"><button className={`ghost-button ${editing ? "selected" : ""}`} onClick={() => setEditing((value) => !value)}><Pencil size={15} /> {editing ? "Preview" : "Edit notebook"}</button><button className="primary-button" onClick={() => exportNote("markdown")}><Download size={15} /> Export</button></div></div>
+              <div className="content-toolbar"><div><div className="eyebrow">CURRENT NOTEBOOK</div><div className="notebook-title-line"><h2>{note.title}</h2><span className="source-chip"><CheckCircle2 size={13} /> Grounded</span></div></div><div className="toolbar-actions"><button className={`ghost-button ${editing ? "selected" : ""}`} onClick={() => setEditing((value) => !value)}><Pencil size={15} /> {editing ? "Preview" : "Edit notebook"}</button><button className="primary-button" onClick={printNotebook}><Download size={15} /> PDF / Print</button></div></div>
               <div className="notebook-card">
                 <div className="notebook-cover"><div className="cover-side-label">LECTURE NOTEBOOK <span>·</span> 01</div><div className="cover-content"><div className="cover-kicker">{note.course}</div>{editing ? <input value={note.title} onChange={(event) => updateNote({ title: event.target.value })} className="cover-input" /> : <h2>{note.title}</h2>}<div className="cover-meta"><span><Clock3 size={14} /> {note.date}</span><span><FileText size={14} /> {note.processingStatus.split("·")[0].trim()}</span></div></div><div className="cover-footer"><span>LECTURE NOTEBOOK AI</span><span>LOCAL-FIRST / V0.1</span></div></div>
                 <div className="notebook-body">
@@ -259,6 +285,7 @@ export default function Home() {
             <aside className="context-rail">
               <div className="rail-card status-card" id="audio"><div className="rail-card-header"><span className="section-label">NOTEBOOK STATUS · AUDIO</span><CheckCircle2 size={18} className="green-icon" /></div><div className="status-title">Ready to study</div><p>{note.sections.length} topics organized from {note.transcript.length} timestamped source moments.</p><div className="status-list"><StatusLine label="Schema validation" value="Passed" /><StatusLine label="Source grounding" value={groundingValue} warn={note.uncertainItems.length > 0} /><StatusLine label="Audio source" value="Transcript" /></div><button className="rail-action" onClick={saveDraft}>Save changes <ArrowRight size={15} /></button></div>
               <div className="rail-card" id="visuals"><div className="rail-card-header"><span className="section-label">SELECTED VISUALS</span><ImageIcon size={17} className="blue-icon" /></div><div className="visual-stack">{note.visualHighlights.map((visual) => <VisualCard key={visual.id} visual={visual} />)}</div><p className="rail-note">Illustrative cards in the foundation build. Frame extraction arrives in Stage 3.</p></div>
+              <div className="rail-card media-card"><div className="rail-card-header"><span className="section-label">MEDIA PROCESSING · STAGE 3</span><ScanText size={17} className="blue-icon" /></div><p>Attach audio, video, slides, or subtitles. Images become visual highlights; audio/video remain local until a transcript is supplied.</p><button className="rail-action" onClick={() => mediaRef.current?.click()}>Add media <Upload size={15} /></button>{mediaAssets.length > 0 && <div className="media-assets">{mediaAssets.map((asset) => <div className="media-asset" key={asset.id}><span className="media-asset-icon">{asset.kind === "audio" ? <Mic2 size={13} /> : asset.kind === "video" ? <FileVideo size={13} /> : asset.kind === "image" ? <ImageIcon size={13} /> : <FileText size={13} />}</span><div><strong>{asset.name}</strong><small>{mediaKindLabel(asset.kind)} · {formatFileSize(asset.size)}</small><em>{mediaStatusCopy(asset)}</em></div><button onClick={() => removeMediaAsset(asset.id)} aria-label={`Remove ${asset.name}`}><Trash2 size={13} /></button></div>)}</div>}<span className="stage3-badge">{canGenerateFromMedia(mediaAssets) ? "Transcript source ready" : "Transcript required for media generation"}</span></div>
               <div className="rail-card privacy-card"><div className="rail-card-header"><span className="section-label">PRIVACY + CONSENT</span><ShieldCheck size={17} className="blue-icon" /></div><p>{capturePolicy}</p><button className="text-button" onClick={() => setModal("consent")}>Review permissions <ArrowRight size={14} /></button></div>
               <div className="rail-card quick-card"><div className="rail-card-header"><span className="section-label">QUICK ACTIONS</span><Layers3 size={17} className="warm-icon" /></div><button onClick={() => setActiveNav("Transcript")}><Search size={15} /> Search transcript <span>/</span></button><button onClick={() => exportNote("html")}><Download size={15} /> Export HTML <span>↗</span></button><button onClick={saveDraft}><Check size={15} /> Save locally <span>⌘S</span></button><button onClick={() => { deleteLocalNote(); notify("Draft cleared from local storage."); }}><X size={15} /> Delete local data <span>×</span></button></div>
             </aside>
@@ -275,6 +302,7 @@ export default function Home() {
 
       {modal && <Modal mode={modal} note={note} consent={consent} setConsent={setConsent} allConsent={allConsent} onClose={() => setModal(null)} onCapture={beginCapture} onImport={() => uploadRef.current?.click()} onDemo={() => { setNote(structuredClone(demoLecture)); setModal(null); notify("Sample transcript loaded."); }} onOpenPrevious={() => { const draft = loadNoteLocally(); if (draft) setNote(draft); setModal(null); notify(draft ? "Previous local notebook opened." : "No saved draft yet — loading the sample notebook instead."); }} />}
       <input ref={uploadRef} type="file" accept=".txt,.md,.vtt,.srt,.json" hidden onChange={(event) => handleFile(event.target.files?.[0])} />
+      <input ref={mediaRef} type="file" accept="audio/*,video/*,image/*,.txt,.md,.vtt,.srt,.json" multiple hidden onChange={(event) => handleMediaFiles(event.target.files)} />
     </div>
     </>
   );

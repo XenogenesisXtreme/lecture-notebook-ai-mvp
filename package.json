@@ -10,7 +10,7 @@
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "cd client && vitest run src/lib/lecture.test.ts"
+    "test": "cd client && vitest run src/lib/*.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
