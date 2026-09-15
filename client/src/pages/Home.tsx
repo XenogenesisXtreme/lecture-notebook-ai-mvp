@@ -55,6 +55,7 @@ const navItems = [
   { label: "Notebook", icon: BookOpen, count: (note: LectureNote) => note.sections.length },
   { label: "Transcript", icon: AlignLeft, count: (note: LectureNote) => note.transcript.length },
   { label: "Visuals", icon: ImageIcon, count: (note: LectureNote) => note.visualHighlights.length },
+  { label: "Audio", icon: Volume2, count: () => 0 },
   { label: "Review", icon: BookOpenCheck, count: (note: LectureNote) => note.reviewQuestions.length },
 ];
 
@@ -83,6 +84,13 @@ export default function Home() {
   const groundingValue = note.uncertainItems.length ? "1 review" : "Clear";
 
   const notify: Toastish = (message) => toast(message);
+
+  function handleNav(label: string) {
+    setActiveNav(label);
+    setMobileOpen(false);
+    const target = label === "Notebook" ? "notebook-top" : label === "Transcript" ? "transcript" : label === "Visuals" ? "visuals" : label === "Audio" ? "audio" : "review";
+    document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
   function updateNote(patch: Partial<LectureNote>) {
     setNote((current) => ({ ...current, ...patch }));
@@ -165,7 +173,7 @@ export default function Home() {
   const nav = (
     <div className="space-y-1">
       {navItems.map(({ label, icon: Icon, count }) => (
-        <button key={label} onClick={() => { setActiveNav(label); setMobileOpen(false); }} className={`nav-item ${activeNav === label ? "active" : ""}`}>
+        <button key={label} onClick={() => handleNav(label)} className={`nav-item ${activeNav === label ? "active" : ""}`}>
           <Icon size={17} strokeWidth={1.7} />
           <span>{label}</span>
           <span className="nav-count">{String(count(note)).padStart(2, "0")}</span>
@@ -249,8 +257,8 @@ export default function Home() {
             </section>
 
             <aside className="context-rail">
-              <div className="rail-card status-card"><div className="rail-card-header"><span className="section-label">NOTEBOOK STATUS</span><CheckCircle2 size={18} className="green-icon" /></div><div className="status-title">Ready to study</div><p>{note.sections.length} topics organized from {note.transcript.length} timestamped source moments.</p><div className="status-list"><StatusLine label="Schema validation" value="Passed" /><StatusLine label="Source grounding" value={groundingValue} warn={note.uncertainItems.length > 0} /><StatusLine label="Local save" value={localStorage.getItem("lecture-notebook-ai:last-note") ? "Saved" : "Not saved"} /></div><button className="rail-action" onClick={saveDraft}>Save changes <ArrowRight size={15} /></button></div>
-              <div className="rail-card"><div className="rail-card-header"><span className="section-label">SELECTED VISUALS</span><ImageIcon size={17} className="blue-icon" /></div><div className="visual-stack">{note.visualHighlights.map((visual) => <VisualCard key={visual.id} visual={visual} />)}</div><p className="rail-note">Illustrative cards in the foundation build. Frame extraction arrives in Stage 3.</p></div>
+              <div className="rail-card status-card" id="audio"><div className="rail-card-header"><span className="section-label">NOTEBOOK STATUS · AUDIO</span><CheckCircle2 size={18} className="green-icon" /></div><div className="status-title">Ready to study</div><p>{note.sections.length} topics organized from {note.transcript.length} timestamped source moments.</p><div className="status-list"><StatusLine label="Schema validation" value="Passed" /><StatusLine label="Source grounding" value={groundingValue} warn={note.uncertainItems.length > 0} /><StatusLine label="Audio source" value="Transcript" /></div><button className="rail-action" onClick={saveDraft}>Save changes <ArrowRight size={15} /></button></div>
+              <div className="rail-card" id="visuals"><div className="rail-card-header"><span className="section-label">SELECTED VISUALS</span><ImageIcon size={17} className="blue-icon" /></div><div className="visual-stack">{note.visualHighlights.map((visual) => <VisualCard key={visual.id} visual={visual} />)}</div><p className="rail-note">Illustrative cards in the foundation build. Frame extraction arrives in Stage 3.</p></div>
               <div className="rail-card privacy-card"><div className="rail-card-header"><span className="section-label">PRIVACY + CONSENT</span><ShieldCheck size={17} className="blue-icon" /></div><p>{capturePolicy}</p><button className="text-button" onClick={() => setModal("consent")}>Review permissions <ArrowRight size={14} /></button></div>
               <div className="rail-card quick-card"><div className="rail-card-header"><span className="section-label">QUICK ACTIONS</span><Layers3 size={17} className="warm-icon" /></div><button onClick={() => setActiveNav("Transcript")}><Search size={15} /> Search transcript <span>/</span></button><button onClick={() => exportNote("html")}><Download size={15} /> Export HTML <span>↗</span></button><button onClick={saveDraft}><Check size={15} /> Save locally <span>⌘S</span></button><button onClick={() => { deleteLocalNote(); notify("Draft cleared from local storage."); }}><X size={15} /> Delete local data <span>×</span></button></div>
             </aside>
@@ -285,7 +293,7 @@ function TopicSection({ section, index, editing, onChange }: { section: LectureS
 }
 
 function RevisionSheet({ note }: { note: LectureNote }) {
-  return <section className="revision-sheet"><div className="revision-top"><div><div className="section-label">04 / REVISION SHEET</div><h3>One page before the exam.</h3></div><BookOpenCheck size={22} /></div><div className="revision-grid"><div><div className="mini-label">REMEMBER</div>{note.examReview.map((item) => <p key={item}><Check size={14} />{item}</p>)}</div><div><div className="mini-label">REVIEW QUESTIONS</div>{note.reviewQuestions.map((question, index) => <p key={question}><span>0{index + 1}</span>{question}</p>)}</div></div></section>;
+  return <section className="revision-sheet" id="review"><div className="revision-top"><div><div className="section-label">04 / REVISION SHEET</div><h3>One page before the exam.</h3></div><BookOpenCheck size={22} /></div><div className="revision-grid"><div><div className="mini-label">REMEMBER</div>{note.examReview.map((item) => <p key={item}><Check size={14} />{item}</p>)}</div><div><div className="mini-label">REVIEW QUESTIONS</div>{note.reviewQuestions.map((question, index) => <p key={question}><span>0{index + 1}</span>{question}</p>)}</div></div></section>;
 }
 
 function VisualCard({ visual }: { visual: VisualHighlight }) {
