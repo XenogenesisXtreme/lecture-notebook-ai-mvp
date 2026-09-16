@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Lecture Notebook AI",
+  "version": "0.1.0",
+  "description": "Open the privacy-first Lecture Notebook AI workspace from any tab.",
+  "action": {
+    "default_title": "Open Lecture Notebook AI",
+    "default_popup": "popup.html"
+  },
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["https://*.manus.space/*", "https://*.manus.computer/*"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {}
+}
