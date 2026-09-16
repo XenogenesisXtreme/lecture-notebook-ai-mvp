@@ -61,6 +61,45 @@ pnpm run check
 pnpm run build
 ```
 
+## Use the GitHub repository
+
+Clone the repository with GitHub CLI:
+
+```bash
+gh repo clone XenogenesisXtreme/lecture-notebook-ai-mvp
+cd lecture-notebook-ai-mvp
+pnpm install
+pnpm dev
+```
+
+Or clone it with Git:
+
+```bash
+git clone https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp.git
+cd lecture-notebook-ai-mvp
+pnpm install
+```
+
+After making changes, run the checks and push them to the `main` branch:
+
+```bash
+pnpm test
+pnpm run check
+pnpm run build
+git add .
+git commit -m "Describe the change"
+git push origin main
+```
+
+The repository is maintained by **Xenogenesis Xtreme** (`@XenogenesisXtreme`). To make future commits display your GitHub identity, configure your local repository with the name and a GitHub-associated email address:
+
+```bash
+git config user.name "Xenogenesis Xtreme"
+git config user.email "YOUR_GITHUB_EMAIL_OR_NO_REPLY_EMAIL"
+```
+
+The repository owner and public maintainer identity are controlled by the GitHub account, while individual commit authors are controlled by the Git author configuration. Existing commits retain their original author metadata; new commits will use the identity configured above.
+
 The extension files are in `extension/`. To recreate the downloadable archive locally:
 
 ```bash
