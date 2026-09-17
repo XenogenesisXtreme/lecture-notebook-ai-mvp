@@ -2,7 +2,7 @@
 
 <p align="center"><img src="brand/logo.png" alt="Lecture Notebook AI logo" width="128"></p>
 
-<p align="center"><img src="brand/repository-banner.png" alt="Lecture Notebook AI repository banner"></p>
+<p align="center"><img src="brand/repository-banner.jpg" alt="Lecture Notebook AI repository banner"></p>
 
 **Lecture Notebook AI** is a privacy-first, transcript-centered study workspace for turning lectures into structured, reviewable notes. It combines timestamped transcripts, notebook rendering, visual highlights, browser-local media processing, and PDF-ready export in a dark neon academic interface.
 
