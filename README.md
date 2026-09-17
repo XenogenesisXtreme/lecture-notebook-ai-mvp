@@ -1,6 +1,14 @@
 # Lecture Notebook AI
 
+<p align="center"><img src="brand/logo.png" alt="Lecture Notebook AI logo" width="128"></p>
+
+<p align="center"><img src="brand/repository-banner.png" alt="Lecture Notebook AI repository banner"></p>
+
 **Lecture Notebook AI** is a privacy-first, transcript-centered study workspace for turning lectures into structured, reviewable notes. It combines timestamped transcripts, notebook rendering, visual highlights, browser-local media processing, and PDF-ready export in a dark neon academic interface.
+
+![Public repository](https://img.shields.io/badge/repository-public-52e0bd?style=flat-square)
+![Stage 5](https://img.shields.io/badge/stage-5%20review%20lab-5be7ff?style=flat-square)
+![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-f4bd65?style=flat-square)
 
 ## Features
 
@@ -16,7 +24,20 @@
 - Video frame extraction through a canvas-based capture flow.
 - Image OCR through native TextDetector when available, with a Tesseract.js browser fallback.
 - Duplicate visual filtering and frame-importance scoring utilities.
+- Stage 5 media review timeline with **All**, **Needs review**, and **Kept** filters.
+- Per-asset approval controls so captured frames and uploaded visuals can be reviewed before study export.
+- Language selection for browser speech recognition and Tesseract.js OCR in English, Hindi, Spanish, and French.
 - Optional Chrome extension with a popup launcher and an unobtrusive page shortcut.
+
+## Screenshots
+
+### Desktop workspace
+
+![Lecture Notebook AI desktop workspace](brand/product-desktop.png)
+
+### Responsive mobile workspace
+
+![Lecture Notebook AI mobile workspace](brand/product-mobile.png)
 
 ## Privacy and safety
 
@@ -104,7 +125,7 @@ The extension files are in `extension/`. To recreate the downloadable archive lo
 
 ```bash
 rm -f client/public/lecture-notebook-ai-extension.zip
-cd extension && zip -r ../client/public/lecture-notebook-ai-extension.zip manifest.json popup.html popup.js content.js
+cd extension && zip -r ../client/public/lecture-notebook-ai-extension.zip manifest.json popup.html popup.js content.js icons
 ```
 
 ## Project structure
@@ -114,14 +135,16 @@ client/src/pages/Home.tsx       Main workspace UI and browser flows
 client/src/lib/lecture.ts       Lecture schema, notebook generation, and exports
 client/src/lib/media.ts         Media classification, OCR, capture, persistence, and frames
 client/src/lib/media.test.ts    Media utility tests
-extension/                      MV3 Chrome extension source
+extension/                      MV3 Chrome extension source and icons
+brand/                          Repository banner, logo, and product screenshots
 STAGE3.md                       Stage 3 implementation notes
 STAGE4.md                       Stage 4 implementation notes
+STAGE5.md                       Stage 5 media review notes
 ```
 
 ## Current limitations
 
-Speech recognition and screen capture vary by browser and operating system. Tesseract.js provides local OCR but may be slower on large images. The current extension is a launcher and page shortcut; it does not yet inject transcript controls into video-conferencing applications. For production distribution, add extension icons, a privacy policy URL, and Chrome Web Store metadata.
+Speech recognition and screen capture vary by browser and operating system. Tesseract.js provides local OCR but may be slower on large images. The current extension is a launcher and page shortcut; it does not yet inject transcript controls into video-conferencing applications. For production distribution, add a privacy policy URL and Chrome Web Store metadata.
 
 ## License
 

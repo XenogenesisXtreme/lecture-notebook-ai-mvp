@@ -2,7 +2,8 @@ import type { LectureNote, VisualHighlight } from "./lecture";
 import { createWorker } from "tesseract.js";
 
 export type MediaKind = "audio" | "video" | "image" | "transcript" | "subtitle" | "structured";
-export type MediaAsset = { id: string; name: string; kind: MediaKind; size: number; type: string; url?: string; status: "ready" | "needs-transcript" | "visual"; timestamp?: string; ocrText?: string; blob?: Blob };
+export type MediaReviewStatus = "pending" | "kept";
+export type MediaAsset = { id: string; name: string; kind: MediaKind; size: number; type: string; url?: string; status: "ready" | "needs-transcript" | "visual"; reviewStatus?: MediaReviewStatus; timestamp?: string; ocrText?: string; blob?: Blob };
 
 const DB_NAME = "lecture-notebook-ai-stage4";
 const DB_VERSION = 1;
@@ -31,12 +32,12 @@ export function formatFileSize(bytes: number) {
 export function makeMediaAsset(file: File): MediaAsset | null {
   const kind = mediaKind(file);
   if (!kind) return null;
-  return { id: `${file.name}-${file.lastModified}-${file.size}`, name: file.name, kind, size: file.size, type: file.type || "application/octet-stream", url: URL.createObjectURL(file), status: kind === "image" ? "visual" : kind === "transcript" || kind === "subtitle" || kind === "structured" ? "ready" : "needs-transcript", blob: file };
+  return { id: `${file.name}-${file.lastModified}-${file.size}`, name: file.name, kind, size: file.size, type: file.type || "application/octet-stream", url: URL.createObjectURL(file), status: kind === "image" ? "visual" : kind === "transcript" || kind === "subtitle" || kind === "structured" ? "ready" : "needs-transcript", reviewStatus: "pending", blob: file };
 }
 
 export function makeCapturedAsset(blob: Blob, kind: "audio" | "video", elapsedSeconds: number): MediaAsset {
   const extension = kind === "audio" ? "webm" : "webm";
-  return { id: `capture-${Date.now()}`, name: `lecture-capture-${new Date().toISOString().slice(0, 10)}.${extension}`, kind, size: blob.size, type: blob.type, url: URL.createObjectURL(blob), status: "needs-transcript", timestamp: formatClock(elapsedSeconds), blob };
+  return { id: `capture-${Date.now()}`, name: `lecture-capture-${new Date().toISOString().slice(0, 10)}.${extension}`, kind, size: blob.size, type: blob.type, url: URL.createObjectURL(blob), status: "needs-transcript", reviewStatus: "pending", timestamp: formatClock(elapsedSeconds), blob };
 }
 
 export function visualFromImage(asset: MediaAsset, caption = "Uploaded lecture visual", timestamp = "00:00:00", ocrText?: string): VisualHighlight {
@@ -45,13 +46,13 @@ export function visualFromImage(asset: MediaAsset, caption = "Uploaded lecture v
 }
 
 export function visualFromVideoFrame(blob: Blob, timestamp: string): MediaAsset {
-  return { id: `frame-${Date.now()}`, name: `frame-${timestamp.replaceAll(":", "-")}.jpg`, kind: "image", size: blob.size, type: "image/jpeg", url: URL.createObjectURL(blob), status: "visual", timestamp, blob };
+  return { id: `frame-${Date.now()}`, name: `frame-${timestamp.replaceAll(":", "-")}.jpg`, kind: "image", size: blob.size, type: "image/jpeg", url: URL.createObjectURL(blob), status: "visual", reviewStatus: "pending", timestamp, blob };
 }
 
 export function visualFingerprint(frame: Pick<VisualHighlight, "caption" | "timestamp">) { return `${frame.caption.trim().toLowerCase()}|${frame.timestamp}`; }
 export function dedupeVisuals(frames: VisualHighlight[]) { return frames.filter((frame, index, all) => all.findIndex((candidate) => visualFingerprint(candidate) === visualFingerprint(frame)) === index); }
 export function scoreVisualFrame(input: { changed: boolean; textDensity: number; hasEquation: boolean; hasDiagram: boolean; emphasisNearby: boolean }) { return Math.min(1, Math.max(0, input.textDensity * 0.25 + (input.changed ? 0.25 : 0) + (input.hasEquation ? 0.2 : 0) + (input.hasDiagram ? 0.2 : 0) + (input.emphasisNearby ? 0.1 : 0))); }
-export function mediaStatusCopy(asset: MediaAsset) { if (asset.status === "visual") return asset.ocrText ? "Visual + OCR ready" : "Visual ready · OCR available"; if (asset.status === "needs-transcript") return "Media attached · transcript required"; return "Ready for notebook generation"; }
+export function mediaStatusCopy(asset: MediaAsset) { const review = asset.reviewStatus === "kept" ? "Kept" : "Needs review"; if (asset.status === "visual") return `${review} · ${asset.ocrText ? "OCR ready" : "OCR available"}`; if (asset.status === "needs-transcript") return `${review} · transcript required`; return `${review} · ready for generation`; }
 export function canGenerateFromMedia(assets: MediaAsset[]) { return assets.some((asset) => ["transcript", "subtitle", "structured"].includes(asset.kind)); }
 export function isSupportedMedia(file: File) { return mediaKind(file) !== null; }
 export function mediaKindLabel(kind: MediaKind) { return kind === "structured" ? "JSON" : kind.charAt(0).toUpperCase() + kind.slice(1); }
@@ -104,8 +105,8 @@ export async function runNativeOcr(image: HTMLImageElement): Promise<string | nu
   return detections.map((item) => item.rawValue ?? "").filter(Boolean).join(" ") || null;
 }
 
-export async function runOcr(image: HTMLImageElement, onProgress?: (progress: number) => void) {
-  const worker = await createWorker("eng", 1, { logger: (message) => { if (message.status === "recognizing text") onProgress?.(message.progress); } });
+export async function runOcr(image: HTMLImageElement, onProgress?: (progress: number) => void, language = "eng") {
+  const worker = await createWorker(language, 1, { logger: (message) => { if (message.status === "recognizing text") onProgress?.(message.progress); } });
   try {
     const result = await worker.recognize(image);
     return result.data.text.trim() || null;

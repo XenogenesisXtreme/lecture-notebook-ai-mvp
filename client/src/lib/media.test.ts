@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dedupeVisuals, mediaKind, scoreVisualFrame, visualFromImage, type MediaAsset } from "./media";
+import { dedupeVisuals, mediaKind, mediaStatusCopy, scoreVisualFrame, visualFromImage, type MediaAsset } from "./media";
 
 describe("media foundation", () => {
   it("classifies supported upload types", () => {
@@ -20,5 +20,13 @@ describe("media foundation", () => {
 
   it("scores changed, diagram-like frames higher", () => {
     expect(scoreVisualFrame({ changed: true, textDensity: 1, hasEquation: true, hasDiagram: true, emphasisNearby: true })).toBeGreaterThan(scoreVisualFrame({ changed: false, textDensity: 0, hasEquation: false, hasDiagram: false, emphasisNearby: false }));
+  });
+
+  it("labels pending and kept visual review states", () => {
+    const pending: MediaAsset = { id: "pending", name: "slide.png", kind: "image", size: 10, type: "image/png", status: "visual", reviewStatus: "pending" };
+    const kept = { ...pending, reviewStatus: "kept" as const, ocrText: "Elastic demand" };
+    expect(mediaStatusCopy(pending)).toContain("Needs review");
+    expect(mediaStatusCopy(kept)).toContain("Kept");
+    expect(mediaStatusCopy(kept)).toContain("OCR ready");
   });
 });
