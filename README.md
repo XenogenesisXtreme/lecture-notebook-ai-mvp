@@ -4,7 +4,7 @@
 
 <p align="center"><img src="brand/repository-banner.jpg" alt="Lecture Notebook AI repository banner"></p>
 
-**Lecture Notebook AI** is a privacy-first, transcript-centered study workspace for turning lectures into structured, reviewable notes. It combines timestamped transcripts, notebook rendering, visual highlights, browser-local media processing, and PDF-ready export in a dark neon academic interface.
+**Lecture Notebook AI** is a privacy-first, transcript-centered study workspace for turning lectures into structured, reviewable notes. And my second repo! It combines timestamped transcripts, notebook rendering, visual highlights, browser-local media processing, and PDF-ready export in a dark neon academic interface.
 
 ![Public repository](https://img.shields.io/badge/repository-public-52e0bd?style=flat-square)
 ![Stage 5](https://img.shields.io/badge/stage-5%20review%20lab-5be7ff?style=flat-square)
