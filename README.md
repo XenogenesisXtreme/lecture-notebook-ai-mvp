@@ -27,7 +27,7 @@
 - Stage 5 media review timeline with **All**, **Needs review**, and **Kept** filters.
 - Per-asset approval controls so captured frames and uploaded visuals can be reviewed before study export.
 - Language selection for browser speech recognition and Tesseract.js OCR in English, Hindi, Spanish, and French.
-- Optional Chrome extension with a popup launcher and an unobtrusive page shortcut.
+- Optional Chrome extension with the same repository logo, a popup launcher, and a consent-gated media-page control dock for local voice-note drafts.
 
 ## Screenshots
 
@@ -43,7 +43,7 @@
 
 The app does not join Zoom, bypass waiting rooms, defeat CAPTCHAs, hide recording state, or bypass host controls. Capture starts only after the consent checklist and browser permission flow. The browser build keeps workspace data local using localStorage and IndexedDB. Media is not uploaded by the static frontend.
 
-The Chrome extension requests `storage` and `activeTab` permissions. Its content script adds a small `LN` shortcut to pages; clicking it opens the Lecture Notebook AI workspace. It does not read page content or automatically capture tabs.
+The Chrome extension requests `storage` and `activeTab` permissions. On pages containing video or audio, its content script adds a visible control dock with **Open workspace** and **Start voice note** actions. Voice notes begin only after the user clicks the action and grants browser permission, then remain in extension-local storage until the user opens the workspace. It does not join meetings, read page content, automatically capture tabs, or bypass host controls.
 
 ## Open the web app
 
@@ -144,7 +144,7 @@ STAGE5.md                       Stage 5 media review notes
 
 ## Current limitations
 
-Speech recognition and screen capture vary by browser and operating system. Tesseract.js provides local OCR but may be slower on large images. The current extension is a launcher and page shortcut; it does not yet inject transcript controls into video-conferencing applications. For production distribution, add a privacy policy URL and Chrome Web Store metadata.
+Speech recognition and screen capture still vary by browser and operating system, and Tesseract.js may be slower on large images. The extension now adds consent-gated controls on media pages without joining meetings or bypassing host controls. Production-distribution metadata and a public privacy policy are included at [`/privacy.html`](https://lecturenoteb-hxgiwwjj.manus.space/privacy.html); publishing to the Chrome Web Store remains a release step.
 
 ## License
 

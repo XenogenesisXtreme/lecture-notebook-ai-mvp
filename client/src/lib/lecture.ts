@@ -218,15 +218,15 @@ export function getReadTime(note: LectureNote) { return `${Math.max(1, Math.roun
 export function getVisualAccent(type: VisualType) { return type === "equation" ? "amber" : type === "diagram" ? "blue" : "green"; }
 export function getCaptureNotice() { return "Never join, hide, or bypass. Capture only what you have permission to process."; }
 export function getPrivacyCopy() { return "Local-first by design. Keep class material in your browser and delete it anytime."; }
-export function getKnownLimitations() { return ["No external transcription model is called in this static build.", "Audio/video uploads and OCR are staged for the media pass.", "Live capture opens only after explicit user consent and browser permission."]; }
+export function getKnownLimitations() { return ["Speech recognition and screen capture still depend on browser and OS support.", "OCR can be slower on large images because it runs locally.", "The extension adds controls for media pages, but it never joins meetings or bypasses host controls."]; }
 export function getManualChecklist() { return ["Load the sample notebook", "Search for midpoint", "Edit a topic explanation", "Export Markdown", "Open the consent checklist"]; }
 export function getImplementedFeatures() { return ["Structured lecture schema", "Transcript-only demo mode", "Editable notebook renderer", "Searchable timestamped transcript", "Visual highlight cards", "Markdown / HTML / JSON export", "Local draft save and delete"]; }
 export function getConsentRequirements() { return ["Class recording / processing permission", "Browser tab or microphone permission", "Applicable school, Zoom, and legal consent rules"]; }
-export function getExternalRequirements() { return ["None for transcript-only demo", "Browser capture permission for live mode", "Optional media stack + OCR for Stage 3"]; }
+export function getExternalRequirements() { return ["None for transcript-only workflow", "Browser capture or microphone permission for live mode", "Network access may be needed once to fetch Tesseract language assets"]; }
 export function getTestCases() { return ["schema validation", "section merging", "uncertainty marking", "timestamp formatting", "duplicate-frame filtering", "export serialization"]; }
 export function getExactCommands() { return ["pnpm install", "pnpm dev", "pnpm test", "pnpm build"]; }
 export function getExactFilesChanged() { return ["client/src/pages/Home.tsx", "client/src/index.css", "client/index.html", "client/src/lib/lecture.ts", "tests/lecture.test.ts"]; }
-export function getNextSteps() { return ["Add local audio transcription", "Add frame extraction + OCR", "Wire optional browser capture stream", "Add PDF export"]; }
+export function getNextSteps() { return ["Add optional local audio-file transcription", "Add more browser capability diagnostics", "Publish the extension with store metadata", "Add PDF export refinements"]; }
 export function getDemoFileName() { return "economics-elasticity-transcript.txt"; }
 export function getUploadFormats() { return "TXT, Markdown, VTT, SRT, or structured JSON"; }
 export function getCaptureStatus(paused: boolean, capturing: boolean) { return !capturing ? "Not capturing" : paused ? "Paused" : "Capturing"; }

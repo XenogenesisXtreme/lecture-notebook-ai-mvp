@@ -1,5 +1,32 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lecture Notebook AI</title><style>body{width:280px;margin:0;padding:18px;background:#08111b;color:#e8f7f5;font:14px system-ui,sans-serif}h1{font:700 18px Georgia,serif;margin:0 0 8px}p{color:#89a8b2;line-height:1.5;font-size:12px}button{width:100%;border:0;border-radius:9px;padding:11px;background:#5be7ff;color:#061019;font-weight:800;cursor:pointer}button:hover{background:#a0f5ff}.mark{color:#5be7ff;font-size:10px;font-weight:800;letter-spacing:.12em}</style></head>
-<body><div class="mark">LOCAL-FIRST · V0.1</div><h1>Lecture Notebook AI</h1><p>Capture, structure, and revisit lectures without bypassing meeting controls.</p><button id="open">Open workspace</button><script src="popup.js"></script></body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lecture Notebook AI</title>
+  <style>
+    :root { color-scheme: dark; }
+    body { width: 286px; margin: 0; padding: 16px; background: #08111b; color: #e8f7f5; font: 14px system-ui, sans-serif; }
+    header { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+    img { width: 38px; height: 38px; border-radius: 10px; }
+    h1 { font: 700 17px Georgia, serif; margin: 0; }
+    p { color: #89a8b2; line-height: 1.45; font-size: 12px; margin: 8px 0 14px; }
+    button { width: 100%; border: 0; border-radius: 9px; padding: 11px; background: #5be7ff; color: #061019; font-weight: 800; cursor: pointer; }
+    button:hover { background: #a0f5ff; }
+    .secondary { margin-top: 8px; color: #b9ded1; background: #16313a; }
+    .secondary:hover { background: #204955; }
+    .mark { color: #5be7ff; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
+    .status { min-height: 16px; color: #9dd8c7; font-size: 11px; margin-top: 10px; }
+    a { color: #5be7ff; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="mark">LOCAL-FIRST · V0.2</div>
+  <header><img src="icons/icon128.png" alt="Lecture Notebook AI logo"><h1>Lecture Notebook AI</h1></header>
+  <p>Open the workspace or use the page dock on media pages to make a permission-based voice note. Nothing records automatically.</p>
+  <button id="open">Open workspace</button>
+  <button id="privacy" class="secondary">Privacy policy</button>
+  <div id="status" class="status" role="status"></div>
+  <script src="popup.js"></script>
+</body>
 </html>

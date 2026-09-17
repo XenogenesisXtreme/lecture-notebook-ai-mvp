@@ -1,11 +1,19 @@
 {
   "manifest_version": 3,
   "name": "Lecture Notebook AI",
-  "version": "0.1.0",
-  "description": "Open the privacy-first Lecture Notebook AI workspace from any tab.",
+  "short_name": "Lecture Notebook AI",
+  "version": "0.2.0",
+  "description": "Capture permission-based lecture notes locally from media pages, then open the Lecture Notebook AI workspace.",
+  "homepage_url": "https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp",
   "action": {
     "default_title": "Open Lecture Notebook AI",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "permissions": ["storage", "activeTab"],
   "host_permissions": ["https://*.manus.space/*", "https://*.manus.computer/*"],
