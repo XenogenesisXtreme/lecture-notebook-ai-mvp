@@ -18,6 +18,11 @@ async function startServer() {
 
   app.use(express.static(staticPath));
 
+  // Keep the public privacy URL independent from the client-side router.
+  app.get("/privacy.html", (_req, res) => {
+    res.sendFile(path.join(staticPath, "privacy.html"));
+  });
+
   // Handle client-side routing - serve index.html for all routes
   app.get("*", (_req, res) => {
     res.sendFile(path.join(staticPath, "index.html"));
