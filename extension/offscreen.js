@@ -38,5 +38,5 @@ async function finish() {
   stream = undefined;
   recorder = undefined;
   chunks = [];
-  chrome.runtime.sendMessage({ type: "recording-finished", message: "Recording downloaded locally." });
+  chrome.runtime.sendMessage({ type: "recording-finished", message: "Recording downloaded locally. Review notes in the workspace.", recording: { blob, name: filename, sourceTitle: "Recorded source" } });
 }

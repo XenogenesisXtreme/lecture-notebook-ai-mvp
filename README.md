@@ -65,7 +65,8 @@ Chrome does not install a local extension by opening a ZIP directly. The ZIP con
 5. Click **Load unpacked**.
 6. Select the extracted folder that directly contains `manifest.json`, `popup.html`, `popup.js`, `background.js`, and `offscreen.html`. Do not select the ZIP file and do not select a parent folder containing the extracted folder.
 7. Pin **Lecture Notebook AI** from Chrome’s extensions menu for quick access.
-8. Click the extension icon to open the widget. Choose **Open website** to launch the workspace, or choose **Start recording** to open Chrome's native picker and select a tab, window, or screen. Stop the recording from the widget; Chrome then saves a local WebM file.
+8. Click the extension icon to open the widget. Choose **Open website** to launch the workspace, or choose **Start recording** to open Chrome's native picker and select a tab, window, or screen. Stop the recording from the widget; Chrome saves a local WebM file and opens the workspace's review view with the recording handed into the browser-local media queue.
+9. In the workspace, review or remove the received recording, then add/import a timestamped transcript to generate grounded notebook sections. The current static build does not yet transcribe raw WebM files automatically.
 
 ### Updating the extension during development
 

@@ -120,6 +120,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    const receiveRecording = (event: Event) => {
+      const file = (event as CustomEvent<{ file?: File }>).detail?.file;
+      if (!file) return;
+      const asset = makeMediaAsset(file);
+      if (!asset) return;
+      setMediaAssets((current) => [...current, asset]);
+      setActiveNav("Review");
+      window.setTimeout(() => document.getElementById("review")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      notify("Recording received. Review the local WebM below; add a transcript before generating grounded notes.");
+    };
+    window.addEventListener("lecture-notebook-recording-ready", receiveRecording);
+    return () => window.removeEventListener("lecture-notebook-recording-ready", receiveRecording);
+  }, []);
+
+  useEffect(() => {
     if (skipPersistRef.current) { skipPersistRef.current = false; return; }
     const timer = window.setTimeout(() => { persistWorkspace(note, mediaAssets).then(() => setStage4Ready(true)).catch(() => undefined); }, 600);
     return () => window.clearTimeout(timer);
