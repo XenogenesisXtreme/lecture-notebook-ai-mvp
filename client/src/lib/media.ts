@@ -58,6 +58,16 @@ export function isSupportedMedia(file: File) { return mediaKind(file) !== null; 
 export function mediaKindLabel(kind: MediaKind) { return kind === "structured" ? "JSON" : kind.charAt(0).toUpperCase() + kind.slice(1); }
 export function formatClock(seconds: number) { const total = Math.max(0, Math.floor(seconds)); return `${String(Math.floor(total / 3600)).padStart(2, "0")}:${String(Math.floor((total % 3600) / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`; }
 
+const OCR_CACHE_KEY = "lecture-notebook-ai-ocr-languages";
+export function isOcrLanguageCached(language: string) {
+  if (typeof localStorage === "undefined") return false;
+  try { return JSON.parse(localStorage.getItem(OCR_CACHE_KEY) ?? "[]").includes(language); } catch { return false; }
+}
+export function markOcrLanguageCached(language: string) {
+  if (typeof localStorage === "undefined") return;
+  try { const current = JSON.parse(localStorage.getItem(OCR_CACHE_KEY) ?? "[]") as string[]; localStorage.setItem(OCR_CACHE_KEY, JSON.stringify(Array.from(new Set([...current, language])))); } catch { /* storage is optional */ }
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -109,6 +119,7 @@ export async function runOcr(image: HTMLImageElement, onProgress?: (progress: nu
   const worker = await createWorker(language, 1, { logger: (message) => { if (message.status === "recognizing text") onProgress?.(message.progress); } });
   try {
     const result = await worker.recognize(image);
+    markOcrLanguageCached(language);
     return result.data.text.trim() || null;
   } finally {
     await worker.terminate();

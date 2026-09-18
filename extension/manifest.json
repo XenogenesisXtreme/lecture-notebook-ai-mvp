@@ -4,7 +4,9 @@
   "short_name": "Lecture Notebook AI",
   "version": "0.2.0",
   "description": "Capture permission-based lecture notes locally from media pages, then open the Lecture Notebook AI workspace.",
+  "author": "Xenogenesis Xtreme",
   "homepage_url": "https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp",
+  "minimum_chrome_version": "114",
   "action": {
     "default_title": "Open Lecture Notebook AI",
     "default_popup": "popup.html",

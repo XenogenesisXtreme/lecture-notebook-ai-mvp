@@ -46,6 +46,7 @@ import {
   getManualChecklist,
   getStageReports,
   getTestCases,
+  alignTranscriptToTopics,
   loadNoteLocally,
   saveNoteLocally,
   toHtml,
@@ -54,7 +55,7 @@ import {
   type LectureSection,
   type VisualHighlight,
 } from "@/lib/lecture";
-import { canGenerateFromMedia, clearWorkspace, extractVideoFrame, formatFileSize, makeCapturedAsset, makeMediaAsset, mediaKindLabel, mediaStatusCopy, persistWorkspace, restoreWorkspace, runNativeOcr, runOcr, visualFromImage, type MediaAsset, type MediaReviewStatus } from "@/lib/media";
+import { canGenerateFromMedia, clearWorkspace, extractVideoFrame, formatFileSize, isOcrLanguageCached, makeCapturedAsset, makeMediaAsset, mediaKindLabel, mediaStatusCopy, persistWorkspace, restoreWorkspace, runNativeOcr, runOcr, visualFromImage, type MediaAsset, type MediaReviewStatus } from "@/lib/media";
 
 const navItems = [
   { label: "Notebook", icon: BookOpen, count: (note: LectureNote) => note.sections.length },
@@ -76,7 +77,7 @@ type ModalMode = "new" | "consent" | "import" | "about" | null;
 type Toastish = (message: string) => void;
 
 export default function Home() {
-  const [note, setNote] = useState<LectureNote>(() => loadNoteLocally() ?? structuredClone(demoLecture));
+  const [note, setNote] = useState<LectureNote>(() => { const initial = loadNoteLocally() ?? structuredClone(demoLecture); return { ...initial, transcript: alignTranscriptToTopics(initial.transcript, initial.sections) }; });
   const [activeNav, setActiveNav] = useState("Notebook");
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState(false);
@@ -88,6 +89,7 @@ export default function Home() {
   const [frames, setFrames] = useState<VisualHighlight[]>([]);
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [ocrBusy, setOcrBusy] = useState(false);
+  const [ocrProgress, setOcrProgress] = useState(0);
   const [language, setLanguage] = useState("en-US");
   const [reviewFilter, setReviewFilter] = useState<"all" | MediaReviewStatus>("all");
   const [transcriptDraft, setTranscriptDraft] = useState("");
@@ -111,7 +113,7 @@ export default function Home() {
   const visibleMediaAssets = mediaAssets.filter((asset) => reviewFilter === "all" || asset.reviewStatus === reviewFilter);
 
   useEffect(() => {
-    restoreWorkspace().then((saved) => { if (saved) { setNote(saved.note); setMediaAssets(saved.assets); setStage4Ready(true); } });
+    restoreWorkspace().then((saved) => { if (saved) { setNote({ ...saved.note, transcript: alignTranscriptToTopics(saved.note.transcript, saved.note.sections) }); setMediaAssets(saved.assets); setStage4Ready(true); } });
   }, []);
 
   useEffect(() => {
@@ -173,7 +175,8 @@ export default function Home() {
     reader.onload = () => {
       const value = String(reader.result ?? "");
       const imported = file.name.toLowerCase().endsWith(".json") ? tryParseJson(value) : generateNotebookFromTranscript(value);
-      setNote(imported ?? generateNotebookFromTranscript(value));
+      const next = imported ?? generateNotebookFromTranscript(value);
+      setNote({ ...next, transcript: alignTranscriptToTopics(next.transcript, next.sections) });
       setModal(null);
       notify("Transcript imported — review the generated structure before exporting.");
     };
@@ -201,14 +204,15 @@ export default function Home() {
 
   async function analyzeImage(asset: MediaAsset) {
     if (!asset.url || asset.kind !== "image") return;
-    setOcrBusy(true);
+    setOcrBusy(true); setOcrProgress(0);
     try {
       const image = new Image(); image.src = asset.url; await image.decode();
-      const text = await runNativeOcr(image) ?? await runOcr(image, (progress) => { if (progress > 0.1 && progress < 1) notify(`OCR scan ${Math.round(progress * 100)}% complete…`); }, selectedLanguage.ocr);
+      if (!isOcrLanguageCached(selectedLanguage.ocr)) notify(`${selectedLanguage.label} OCR language pack is loading locally for the first scan…`);
+      const text = await runNativeOcr(image) ?? await runOcr(image, (progress) => { setOcrProgress(progress); }, selectedLanguage.ocr);
       setMediaAssets((current) => current.map((item) => item.id === asset.id ? { ...item, ocrText: text ?? "No native OCR detector available in this browser." } : item));
       if (text) updateNote({ visualHighlights: note.visualHighlights.map((visual) => visual.id === `uploaded-${asset.id}` ? { ...visual, whatItShows: `${visual.whatItShows} OCR extract: ${text}` } : visual) });
       notify(text ? "OCR extracted text from the visual and synced it to the notebook." : "OCR found no readable text in this visual.");
-    } catch { notify("OCR scan could not read this image."); } finally { setOcrBusy(false); }
+    } catch { notify("OCR scan could not read this image."); } finally { setOcrBusy(false); setOcrProgress(0); }
   }
 
   function removeMediaAsset(id: string) {
@@ -256,7 +260,7 @@ export default function Home() {
     recorderRef.current?.stop(); recorderRef.current = null; recognitionRef.current?.stop(); recognitionRef.current = null; streamRef.current?.getTracks().forEach((track) => track.stop()); streamRef.current = null; if (videoRef.current) videoRef.current.srcObject = null;
     setCapturing(false);
     setPaused(false);
-    if (transcriptDraft.trim()) updateNote({ transcript: [...note.transcript, { timestamp: formatTimestamp(elapsed), speaker: "Captured audio", text: transcriptDraft.trim() }] });
+    if (transcriptDraft.trim()) { const nextTranscript = [...note.transcript, { timestamp: formatTimestamp(elapsed), speaker: "Captured audio", text: transcriptDraft.trim() }]; updateNote({ transcript: alignTranscriptToTopics(nextTranscript, note.sections) }); }
     notify("Capture stopped. Review the notebook before export.");
   }
 
@@ -303,6 +307,7 @@ export default function Home() {
           <StageRow number="03" label="Media" detail="Upload + OCR" complete />
           <StageRow number="04" label="Live capture" detail="Browser-local" complete />
           <StageRow number="05" label="Review lab" detail="Language + approvals" complete />
+          <StageRow number="06" label="Grounding" detail="Alignment + OCR cache" complete />
         </div>
         <div className="sidebar-bottom">
           <div className="local-card">
@@ -358,15 +363,15 @@ export default function Home() {
             <aside className="context-rail">
               <div className="rail-card status-card" id="audio"><div className="rail-card-header"><span className="section-label">NOTEBOOK STATUS · AUDIO</span><CheckCircle2 size={18} className="green-icon" /></div><div className="status-title">Ready to study</div><p>{note.sections.length} topics organized from {note.transcript.length} timestamped source moments.</p><div className="status-list"><StatusLine label="Schema validation" value="Passed" /><StatusLine label="Source grounding" value={groundingValue} warn={note.uncertainItems.length > 0} /><StatusLine label="Audio source" value="Transcript" /></div><button className="rail-action" onClick={saveDraft}>Save changes <ArrowRight size={15} /></button></div>
               <div className="rail-card" id="visuals"><div className="rail-card-header"><span className="section-label">SELECTED VISUALS</span><ImageIcon size={17} className="blue-icon" /></div><div className="visual-stack">{note.visualHighlights.map((visual) => <VisualCard key={visual.id} visual={visual} />)}</div><p className="rail-note">Illustrative cards in the foundation build. Frame extraction arrives in Stage 3.</p></div>
-              <div className="rail-card media-card"><div className="rail-card-header"><span className="section-label">STAGE 5 · MEDIA REVIEW</span><ScanText size={17} className="blue-icon" /></div><p>Review captured frames and uploaded visuals before they become part of your study notebook.</p><div className="media-controls"><button className="rail-action" onClick={() => mediaRef.current?.click()}>Add media <Upload size={15} /></button><label className="language-control"><span>Language</span><select value={language} onChange={(event) => setLanguage(event.target.value)} aria-label="Speech and OCR language">{languageOptions.map((option) => <option key={option.speech} value={option.speech}>{option.label}</option>)}</select></label></div><div className="review-filters"><button className={reviewFilter === "all" ? "selected" : ""} onClick={() => setReviewFilter("all")}>All <span>{mediaAssets.length}</span></button><button className={reviewFilter === "pending" ? "selected" : ""} onClick={() => setReviewFilter("pending")}>Needs review <span>{mediaAssets.filter((asset) => asset.reviewStatus !== "kept").length}</span></button><button className={reviewFilter === "kept" ? "selected" : ""} onClick={() => setReviewFilter("kept")}>Kept <span>{mediaAssets.filter((asset) => asset.reviewStatus === "kept").length}</span></button></div>{visibleMediaAssets.length > 0 && <div className="media-assets">{visibleMediaAssets.map((asset, index) => <div className={`media-asset ${asset.reviewStatus === "kept" ? "kept" : "pending"}`} key={asset.id}><span className="media-index">0{index + 1}</span><span className="media-asset-icon">{asset.kind === "audio" ? <Mic2 size={13} /> : asset.kind === "video" ? <FileVideo size={13} /> : asset.kind === "image" ? <ImageIcon size={13} /> : <FileText size={13} />}</span><div><strong>{asset.name}</strong><small>{asset.timestamp ?? "Awaiting timestamp"} · {mediaKindLabel(asset.kind)} · {formatFileSize(asset.size)}</small><em>{mediaStatusCopy(asset)}</em></div>{asset.kind === "image" && <button onClick={() => analyzeImage(asset)} disabled={ocrBusy} aria-label={`Run OCR on ${asset.name}`}><ScanText size={13} /></button>}<button className="review-toggle" onClick={() => updateMediaReview(asset.id)} aria-label={`${asset.reviewStatus === "kept" ? "Mark" : "Keep"} ${asset.name}`}>{asset.reviewStatus === "kept" ? <Check size={13} /> : <CheckCircle2 size={13} />}</button><button onClick={() => removeMediaAsset(asset.id)} aria-label={`Remove ${asset.name}`}><Trash2 size={13} /></button></div>)}</div>}<span className="stage3-badge">{stage4Ready ? "IndexedDB workspace synced" : canGenerateFromMedia(mediaAssets) ? "Transcript source ready" : "Local workspace initializing"}</span></div>
+              <div className="rail-card media-card"><div className="rail-card-header"><span className="section-label">STAGE 6 · MEDIA REVIEW</span><ScanText size={17} className="blue-icon" /></div><p>Review captured frames and uploaded visuals before they become part of your study notebook.</p><div className="media-controls"><button className="rail-action" onClick={() => mediaRef.current?.click()}>Add media <Upload size={15} /></button><label className="language-control"><span>Language</span><select value={language} onChange={(event) => setLanguage(event.target.value)} aria-label="Speech and OCR language">{languageOptions.map((option) => <option key={option.speech} value={option.speech}>{option.label}</option>)}</select><small>{isOcrLanguageCached(selectedLanguage.ocr) ? "OCR pack cached" : "OCR pack downloads on first scan"}</small></label></div>{ocrBusy && <div className="ocr-progress"><span>OCR scan {Math.round(ocrProgress * 100)}%</span><i><b style={{ width: `${Math.max(4, ocrProgress * 100)}%` }} /></i></div>}<div className="review-filters"><button className={reviewFilter === "all" ? "selected" : ""} onClick={() => setReviewFilter("all")}>All <span>{mediaAssets.length}</span></button><button className={reviewFilter === "pending" ? "selected" : ""} onClick={() => setReviewFilter("pending")}>Needs review <span>{mediaAssets.filter((asset) => asset.reviewStatus !== "kept").length}</span></button><button className={reviewFilter === "kept" ? "selected" : ""} onClick={() => setReviewFilter("kept")}>Kept <span>{mediaAssets.filter((asset) => asset.reviewStatus === "kept").length}</span></button></div>{visibleMediaAssets.length > 0 && <div className="media-assets">{visibleMediaAssets.map((asset, index) => <div className={`media-asset ${asset.reviewStatus === "kept" ? "kept" : "pending"}`} key={asset.id}><span className="media-index">0{index + 1}</span><span className="media-asset-icon">{asset.kind === "audio" ? <Mic2 size={13} /> : asset.kind === "video" ? <FileVideo size={13} /> : asset.kind === "image" ? <ImageIcon size={13} /> : <FileText size={13} />}</span><div><strong>{asset.name}</strong><small>{asset.timestamp ?? "Awaiting timestamp"} · {mediaKindLabel(asset.kind)} · {formatFileSize(asset.size)}</small><em>{mediaStatusCopy(asset)}</em></div>{asset.kind === "image" && <button onClick={() => analyzeImage(asset)} disabled={ocrBusy} aria-label={`Run OCR on ${asset.name}`}><ScanText size={13} /></button>}<button className="review-toggle" onClick={() => updateMediaReview(asset.id)} aria-label={`${asset.reviewStatus === "kept" ? "Mark" : "Keep"} ${asset.name}`}>{asset.reviewStatus === "kept" ? <Check size={13} /> : <CheckCircle2 size={13} />}</button><button onClick={() => removeMediaAsset(asset.id)} aria-label={`Remove ${asset.name}`}><Trash2 size={13} /></button></div>)}</div>}<span className="stage3-badge">{stage4Ready ? "IndexedDB workspace synced" : canGenerateFromMedia(mediaAssets) ? "Transcript source ready" : "Local workspace initializing"}</span></div>
               <div className="rail-card privacy-card"><div className="rail-card-header"><span className="section-label">PRIVACY + CONSENT</span><ShieldCheck size={17} className="blue-icon" /></div><p>{capturePolicy}</p><button className="text-button" onClick={() => setModal("consent")}>Review permissions <ArrowRight size={14} /></button></div>
               <div className="rail-card quick-card"><div className="rail-card-header"><span className="section-label">QUICK ACTIONS</span><Layers3 size={17} className="warm-icon" /></div><button onClick={() => setActiveNav("Transcript")}><Search size={15} /> Search transcript <span>/</span></button><button onClick={() => exportNote("html")}><Download size={15} /> Export HTML <span>↗</span></button><a className="rail-action" href="/lecture-notebook-ai-extension.zip" download><Download size={15} /> Chrome extension <span>ZIP</span></a><button onClick={saveDraft}><Check size={15} /> Save locally <span>⌘S</span></button><button onClick={() => { skipPersistRef.current = true; deleteLocalNote(); clearWorkspace().catch(() => undefined); setMediaAssets([]); setNote(structuredClone(demoLecture)); notify("Notebook and media cleared from this browser."); }}><X size={15} /> Delete local data <span>×</span></button></div>
             </aside>
           </div>
 
-          <section className={`transcript-drawer ${activeNav === "Transcript" ? "focused" : ""}`} id="transcript"><div className="drawer-header"><div><div className="section-label">03 / SOURCE TRANSCRIPT</div><h2>Searchable transcript</h2><p>Every generated note stays close to its timestamped source.</p></div><div className="drawer-tools"><div className="search-box"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search terms, speakers, timestamps" /><kbd>/</kbd></div><span className="result-count">{filteredTranscript.length} results</span></div></div><div className="transcript-list">{filteredTranscript.map((line) => <div className="transcript-line" id={`transcript-${line.timestamp.replaceAll(":", "-")}`} key={`${line.timestamp}-${line.text}`}><a className="timestamp" href={`#${note.sections.find((section) => section.timeStart <= line.timestamp && section.timeEnd >= line.timestamp)?.id ?? "transcript"}`}>{line.timestamp}</a><div className={`speaker-dot ${line.speaker.toLowerCase().includes("student") ? "student" : ""}`} /><div><strong>{line.speaker}</strong><p>{line.text}</p></div></div>)}</div></section>
+          <section className={`transcript-drawer ${activeNav === "Transcript" ? "focused" : ""}`} id="transcript"><div className="drawer-header"><div><div className="section-label">03 / SOURCE TRANSCRIPT</div><h2>Searchable transcript</h2><p>Every generated note stays close to its timestamped source.</p></div><div className="drawer-tools"><div className="search-box"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search terms, speakers, timestamps" /><kbd>/</kbd></div><span className="result-count">{filteredTranscript.length} results</span></div></div><div className="transcript-list">{filteredTranscript.map((line) => <div className="transcript-line" id={`transcript-${line.timestamp.replaceAll(":", "-")}`} key={`${line.timestamp}-${line.text}`}><a className="timestamp" href={`#${line.sectionId ?? "transcript"}`}>{line.timestamp}</a><div className={`speaker-dot ${line.speaker.toLowerCase().includes("student") ? "student" : ""}`} /><div><strong>{line.speaker}</strong>{line.sectionId && <span className="alignment-chip">{note.sections.find((section) => section.id === line.sectionId)?.heading}</span>}<p>{line.text}</p></div></div>)}</div></section>
 
-          <section className="build-notes" id="build-notes"><div><div className="section-label">BUILD NOTES</div><h2>Reliable before ambitious.</h2><p>Each stage keeps the source visible and the student in control, from transcript grounding through media approval.</p></div><div className="build-report-grid"><ReportItem label="Stage 01" detail={stageReports.stage1} complete /><ReportItem label="Stage 02" detail={stageReports.stage2} complete /><ReportItem label="Stage 04" detail="Browser capture, OCR, persistence" complete /><ReportItem label="Stage 05" detail="Media review + language controls" complete /><ReportItem label="Tests" detail={`${getTestCases().length} core utility cases planned and covered`} complete /></div><div className="limitations"><strong>Known limitations</strong>{getKnownLimitations().map((item) => <span key={item}>{item}</span>)}</div></section>
+          <section className="build-notes" id="build-notes"><div><div className="section-label">BUILD NOTES</div><h2>Reliable before ambitious.</h2><p>Each stage keeps the source visible and the student in control, from transcript grounding through media approval.</p></div><div className="build-report-grid"><ReportItem label="Stage 01" detail={stageReports.stage1} complete /><ReportItem label="Stage 02" detail={stageReports.stage2} complete /><ReportItem label="Stage 04" detail="Browser capture, OCR, persistence" complete /><ReportItem label="Stage 05" detail="Media review + language controls" complete /><ReportItem label="Stage 06" detail="Topic alignment + cached OCR packs" complete /><ReportItem label="Tests" detail={`${getTestCases().length} core utility cases planned and covered`} complete /></div><div className="limitations"><strong>Known limitations</strong>{getKnownLimitations().map((item) => <span key={item}>{item}</span>)}</div></section>
           <footer className="site-footer"><span>Lecture Notebook AI · a focused, privacy-first study workspace</span><span>v0.1 · local-first</span></footer>
         </div>
       </main>

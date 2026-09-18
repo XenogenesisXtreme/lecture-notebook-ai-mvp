@@ -1,6 +1,6 @@
 export type VisualType = "diagram" | "equation" | "chart" | "slide" | "demonstration" | "other";
 
-export type TranscriptLine = { timestamp: string; speaker: string; text: string };
+export type TranscriptLine = { timestamp: string; speaker: string; text: string; sectionId?: string };
 export type Definition = { term: string; meaning: string };
 export type WorkedExample = { title: string; steps: string[] };
 
@@ -43,6 +43,21 @@ export type LectureNote = {
   uncertainItems: { timestamp: string; text: string }[];
   transcript: TranscriptLine[];
 };
+
+export function timestampSeconds(timestamp: string) {
+  const parts = timestamp.split(":").map(Number);
+  if (parts.some(Number.isNaN)) return 0;
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return parts[0] * 3600 + parts[1] * 60 + parts[2];
+}
+
+export function alignTranscriptToTopics(transcript: TranscriptLine[], sections: LectureSection[]) {
+  return transcript.map((line) => {
+    const seconds = timestampSeconds(line.timestamp);
+    const section = sections.find((candidate) => seconds >= timestampSeconds(candidate.timeStart) && seconds <= timestampSeconds(candidate.timeEnd));
+    return { ...line, sectionId: section?.id };
+  });
+}
 
 export const demoTranscript = `[00:00:00] Teacher: Today we are going to build an intuition for price elasticity of demand. The key idea is that elasticity measures responsiveness, not the slope of one particular curve.
 [00:02:18] Teacher: If a small change in price creates a large change in quantity demanded, demand is elastic. If quantity barely moves, demand is inelastic.

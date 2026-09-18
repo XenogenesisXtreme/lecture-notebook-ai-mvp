@@ -144,8 +144,22 @@ STAGE5.md                       Stage 5 media review notes
 
 ## Current limitations
 
-Speech recognition and screen capture still vary by browser and operating system, and Tesseract.js may be slower on large images. The extension now adds consent-gated controls on media pages without joining meetings or bypassing host controls. Production-distribution metadata and a public privacy policy are included at [`/privacy.html`](https://lecturenoteb-hxgiwwjj.manus.space/privacy.html); publishing to the Chrome Web Store remains a release step.
+Speech recognition and screen capture still vary by browser and operating system, and Tesseract.js may be slower on large images; language packs are cached after their first successful scan. The extension now adds consent-gated controls on media pages without joining meetings or bypassing host controls. Production-distribution metadata and a public privacy policy are included at [`/privacy.html`](https://lecturenoteb-hxgiwwjj.manus.space/privacy.html). The current extension remains a launcher and page shortcut and does not inject transcript controls into video-conferencing applications. Chrome Web Store submission remains a release step.
 
 ## License
 
 MIT
+
+## Stage 6 upgrades
+
+- **Transcript-to-topic alignment:** imported, restored, demo, and captured transcript moments are assigned to the notebook section whose timestamp range contains them. The transcript drawer shows a topic chip and links directly to that section.
+- **OCR language-pack caching:** the selected OCR language is cached locally after its first successful scan. The media lab reports whether the language pack is cached and shows live OCR progress during a scan.
+- **Chrome Web Store preparation:** `extension/store-listing.md` contains the short description, detailed listing copy, permission justifications, category, tags, support URL, and publishing checklist. `extension/privacy-policy.md` documents the local-first data model and safety boundaries.
+
+Before submitting to the Chrome Web Store, publish the privacy policy at a stable public URL and add that URL to the Developer Dashboard listing. The current extension is intentionally a launcher and does not automatically read page content or record tabs.
+
+## License
+
+This project is released under the **MIT License**. See [LICENSE](LICENSE). Copyright © 2026 Xenogenesis Xtreme.
+
+The MIT License permits reuse, modification, distribution, sublicensing, and commercial use as long as the copyright and permission notice are retained. The software is provided without warranty.

@@ -442,3 +442,9 @@ kbd { border-color: #2b4751; color: #78a2ac; background: #0e2530; }
 .media-index { color:#5be7ff; font:700 10px ui-monospace,monospace; width:18px; }
 .review-toggle { color:#58e5bd !important; }
 @media (max-width: 900px) { .media-controls { align-items:stretch; } .language-control { flex:1; } .language-control select { width:100%; } }
+
+.alignment-chip { display:inline-block; margin-left:8px; padding:3px 6px; border:1px solid #265c68; border-radius:999px; color:#66e7d0; font-size:10px; font-weight:700; letter-spacing:.02em; }
+.language-control small { color:#52e0bd; font-size:9px; letter-spacing:.02em; text-transform:none; }
+.ocr-progress { display:grid; gap:5px; margin:8px 0 10px; color:#88aeb6; font-size:10px; }
+.ocr-progress i { display:block; height:5px; border-radius:99px; background:#0b2734; overflow:hidden; }
+.ocr-progress b { display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,#52e0bd,#5be7ff); transition:width .2s ease-out; }

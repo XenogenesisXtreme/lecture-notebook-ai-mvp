@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { demoLecture, formatTimestamp, generateNotebookFromTranscript, isNearDuplicateFrame, mergeSections, parseTranscript, toMarkdown, validateJsonShape, validateLecture } from "./lecture";
+import { alignTranscriptToTopics, demoLecture, formatTimestamp, generateNotebookFromTranscript, isNearDuplicateFrame, mergeSections, parseTranscript, timestampSeconds, toMarkdown, validateJsonShape, validateLecture } from "./lecture";
 
 describe("lecture note foundation", () => {
   it("validates the sample note against the core schema", () => {
@@ -35,5 +35,12 @@ describe("lecture note foundation", () => {
     expect(markdown).toContain("# Price Elasticity of Demand");
     expect(markdown).toContain("## The midpoint formula");
     expect(markdown).toContain("Review questions");
+  });
+
+  it("aligns transcript moments to the matching topic by timestamp", () => {
+    expect(timestampSeconds("00:05:42")).toBe(342);
+    const aligned = alignTranscriptToTopics([{ timestamp: "00:05:42", speaker: "Teacher", text: "Midpoint" }, { timestamp: "00:20:00", speaker: "Teacher", text: "Outside" }], demoLecture.sections);
+    expect(aligned[0].sectionId).toBe("midpoint-method");
+    expect(aligned[1].sectionId).toBeUndefined();
   });
 });

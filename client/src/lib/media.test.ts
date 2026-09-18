@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dedupeVisuals, mediaKind, mediaStatusCopy, scoreVisualFrame, visualFromImage, type MediaAsset } from "./media";
+import { dedupeVisuals, isOcrLanguageCached, markOcrLanguageCached, mediaKind, mediaStatusCopy, scoreVisualFrame, visualFromImage, type MediaAsset } from "./media";
 
 describe("media foundation", () => {
   it("classifies supported upload types", () => {
@@ -28,5 +28,10 @@ describe("media foundation", () => {
     expect(mediaStatusCopy(pending)).toContain("Needs review");
     expect(mediaStatusCopy(kept)).toContain("Kept");
     expect(mediaStatusCopy(kept)).toContain("OCR ready");
+  });
+
+  it("exposes safe OCR cache helpers when browser storage is unavailable", () => {
+    expect(isOcrLanguageCached("eng")).toBe(false);
+    expect(() => markOcrLanguageCached("eng")).not.toThrow();
   });
 });
