@@ -32,6 +32,7 @@
 - Per-asset approval controls so captured frames and uploaded visuals can be reviewed before study export.
 - Language selection for browser speech recognition and Tesseract.js OCR in English, Hindi, Spanish, and French.
 - Optional Chrome extension with the same repository logo, a popup launcher, and a consent-gated media-page control dock for local voice-note drafts.
+- Beta feedback button that opens a prefilled GitHub bug report without collecting lecture content.
 
 ## Screenshots
 
@@ -85,6 +86,21 @@ pnpm test
 pnpm run check
 pnpm run build
 ```
+
+### Synchronize the version number
+
+Use the version-bump script whenever a release version changes. It updates the extension manifest, package metadata, README beta badge, and latest release-notes heading/date together:
+
+```bash
+pnpm version:bump 1.03
+# or: node scripts/bump-version.mjs 1.03
+```
+
+The public website exposes the current user-facing version as `1.03`, while Chrome-compatible package versions use the equivalent `1.3.0` format. Review `RELEASE_NOTES.md` after bumping and add the new change summary before committing.
+
+### Report a beta bug
+
+Use **Report beta bug** in the top bar or the **Report a beta bug** quick action. The button opens a prefilled GitHub Issue template with fields for the behavior, reproduction steps, browser, device, and supporting details. Do not include private lecture content in a report.
 
 ## Use the GitHub repository
 

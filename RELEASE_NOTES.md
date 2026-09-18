@@ -6,6 +6,11 @@
 
 ## Latest changes
 
+### Versioning and beta feedback
+
+- Added `scripts/bump-version.mjs` and the `pnpm version:bump` command to synchronize package metadata, the Chrome manifest, README version text, and release-notes version/date.
+- Added a visible **Report beta bug** button and a prefilled GitHub Issue template so beta users can report reproducible problems quickly.
+
 ### Documentation and project status
 
 - Added a prominent **Beta · Version 1.02** status notice to the README.

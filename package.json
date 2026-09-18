@@ -1,6 +1,6 @@
 {
   "name": "lecture-notebook-ai",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -10,7 +10,8 @@
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "cd client && vitest run src/lib/*.test.ts"
+    "test": "cd client && vitest run src/lib/*.test.ts",
+    "version:bump": "node scripts/bump-version.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -65,3 +65,7 @@ Rebuilt the downloadable extension ZIP after merging the public privacy-policy r
 ## Beta v1.02 release documentation · current
 
 Marked the project as **Beta · Version 1.02** in the README. Added latest-only `RELEASE_NOTES.md`, linked release notes, complete changelog, and MIT License from the README, and documented the remaining beta limitations and verification status.
+
+## Version automation and beta feedback · current
+
+Added `scripts/bump-version.mjs` and the `pnpm version:bump` command to synchronize the package version, Chrome extension manifest version, README beta version, and latest release-notes heading/date. Added a visible **Report beta bug** action in the website header and quick-actions rail, a prefilled GitHub Issue URL, and a structured `.github/ISSUE_TEMPLATE/bug_report.md` template for reproducible beta reports.
