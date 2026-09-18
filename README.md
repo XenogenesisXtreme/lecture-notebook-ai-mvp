@@ -1,5 +1,7 @@
 # Lecture Notebook AI
 
+> **Beta · Version 1.02** — This project is actively evolving. Features may change, and bugs or unexpected browser-specific behavior may still occur. Please report issues through the repository issue tracker.
+
 <p align="center"><img src="brand/logo.png" alt="Lecture Notebook AI logo" width="128"></p>
 
 <p align="center"><img src="brand/repository-banner.jpg" alt="Lecture Notebook AI repository banner"></p>
@@ -9,6 +11,8 @@
 ![Public repository](https://img.shields.io/badge/repository-public-52e0bd?style=flat-square)
 ![Stage 5](https://img.shields.io/badge/stage-5%20review%20lab-5be7ff?style=flat-square)
 ![Chrome MV3](https://img.shields.io/badge/Chrome-MV3-f4bd65?style=flat-square)
+
+**Current release:** [Release Notes](RELEASE_NOTES.md) · [Complete Changelog](CHANGELOG.md) · [MIT License](LICENSE)
 
 ## Features
 
@@ -140,6 +144,10 @@ brand/                          Repository banner, logo, and product screenshots
 STAGE3.md                       Stage 3 implementation notes
 STAGE4.md                       Stage 4 implementation notes
 STAGE5.md                       Stage 5 media review notes
+STAGE6.md                       Stage 6 grounding and publishing notes
+RELEASE_NOTES.md                Latest Beta v1.02 release notes only
+CHANGELOG.md                    Complete historical change record
+LICENSE                         MIT License
 ```
 
 ## Current limitations
