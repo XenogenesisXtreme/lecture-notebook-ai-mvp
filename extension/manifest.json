@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lecture Notebook AI",
   "short_name": "Lecture Notebook AI",
-  "version": "0.2.0",
+  "version": "1.2.0",
   "description": "Capture permission-based lecture notes locally from media pages, then open the Lecture Notebook AI workspace.",
   "author": "Xenogenesis Xtreme",
   "homepage_url": "https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp",
