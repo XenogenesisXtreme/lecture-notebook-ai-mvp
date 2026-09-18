@@ -6,7 +6,9 @@ Lecture Notebook AI is maintained by **Xenogenesis Xtreme**. This policy describ
 
 ## Information handled
 
-The extension does not sell personal information, serve behavioral advertising, or build a browsing profile. The current extension provides a popup launcher and a small `LN` shortcut. It does not read page text, collect URLs, record tabs, capture microphone input, or join meetings automatically.
+The extension does not sell personal information, serve behavioral advertising, or build a browsing profile. The current extension provides a popup widget with website and recording actions. It does not read page text, collect URLs, capture microphone input, or join meetings automatically.
+
+When the user clicks **Start recording**, Chrome's native picker asks the user to choose a tab, window, or screen. The selected media is recorded locally with the browser's MediaRecorder API and saved as a WebM download when the user stops recording. No recording begins without that explicit action and selection.
 
 The web workspace can process information that a user intentionally provides, including transcript files, images, audio, video, screen-capture streams, speech-recognition results, OCR output, notebook edits, and review decisions. Capture and microphone access begin only after the user completes the consent checklist and accepts the browser’s permission prompt.
 
@@ -18,7 +20,7 @@ Tesseract.js language and worker assets may be downloaded by the browser on a fi
 
 ## Permissions
 
-The extension declares `activeTab`, `storage`, and host permissions for the deployed workspace domains. These permissions support the extension launcher and future local preferences. The extension does not use them to monitor browsing activity or automatically access content.
+The extension declares `desktopCapture`, `downloads`, `offscreen`, and `storage`. These permissions let Chrome show the user its tab, window, or screen picker, save the completed recording, keep MediaRecorder alive after the popup closes, and store transient recording state locally. The extension does not use them to monitor browsing activity or automatically access content.
 
 ## Third parties
 

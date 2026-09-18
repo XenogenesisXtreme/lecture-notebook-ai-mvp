@@ -8,13 +8,14 @@ Open a privacy-first lecture notebook workspace from any Chrome tab.
 
 Lecture Notebook AI helps students turn lectures into structured, timestamped study notes. The web workspace supports transcript-first notebook generation, searchable source transcripts, visual highlights, browser-local media capture, OCR, frame review, multilingual speech/OCR selection, and print-ready exports.
 
-The extension provides a lightweight launcher. Its popup opens the Lecture Notebook AI workspace, while its small `LN` shortcut opens the workspace in a new tab. The extension does not automatically read page content, join meetings, record tabs, or bypass host controls.
+The extension provides a lightweight widget with two actions: open the Lecture Notebook AI workspace, or start a user-confirmed recording. Recording opens Chrome's native picker so the user can choose a tab, window, or screen. The selected recording is handled locally and downloaded as a WebM file when stopped. The extension does not automatically read page content, join meetings, or bypass host controls.
 
 ## Permissions justification
 
-- `activeTab`: reserved for the user-initiated extension action and future page-aware workflows; the current launcher does not automatically inspect page content.
-- `storage`: reserved for extension preferences and future local settings; the current website stores notebook data in its own browser storage.
-- Host permissions for the Manus deployment domains: allow the extension’s workspace launcher to open the deployed application.
+- `desktopCapture`: opens Chrome's source picker after the user clicks Start recording.
+- `downloads`: saves the user's completed local WebM recording with their confirmation.
+- `offscreen`: runs MediaRecorder outside the popup so recording continues after the widget closes.
+- `storage`: keeps only the local recording-active state needed to update the widget.
 
 ## Category
 

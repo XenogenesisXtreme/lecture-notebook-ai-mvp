@@ -31,7 +31,7 @@
 - Stage 5 media review timeline with **All**, **Needs review**, and **Kept** filters.
 - Per-asset approval controls so captured frames and uploaded visuals can be reviewed before study export.
 - Language selection for browser speech recognition and Tesseract.js OCR in English, Hindi, Spanish, and French.
-- Optional Chrome extension with the same repository logo, a popup launcher, and a consent-gated media-page control dock for local voice-note drafts.
+- Optional Chrome extension with the same repository logo, a two-action widget, and explicit tab/window/screen recording saved as a local WebM.
 - Beta feedback button that opens a prefilled GitHub bug report without collecting lecture content.
 
 ## Screenshots
@@ -48,7 +48,7 @@
 
 The app does not join Zoom, bypass waiting rooms, defeat CAPTCHAs, hide recording state, or bypass host controls. Capture starts only after the consent checklist and browser permission flow. The browser build keeps workspace data local using localStorage and IndexedDB. Media is not uploaded by the static frontend.
 
-The Chrome extension requests `storage` and `activeTab` permissions. On pages containing video or audio, its content script adds a visible control dock with **Open workspace** and **Start voice note** actions. Voice notes begin only after the user clicks the action and grants browser permission, then remain in extension-local storage until the user opens the workspace. It does not join meetings, read page content, automatically capture tabs, or bypass host controls.
+The Chrome extension requests `desktopCapture`, `downloads`, `offscreen`, and `storage` permissions. Its widget offers **Open website** and **Start recording**. Recording opens Chrome's native picker so the user can choose a tab, window, or screen; it begins only after that selection and saves a local WebM when stopped. It does not join meetings, read page content, or bypass host controls.
 
 ## Open the web app
 
@@ -63,13 +63,15 @@ Chrome does not install a local extension by opening a ZIP directly. The ZIP con
 3. Open Chrome and navigate to `chrome://extensions`.
 4. Turn on **Developer mode** in the upper-right corner.
 5. Click **Load unpacked**.
-6. Select the extracted folder that directly contains `manifest.json`, `popup.html`, `popup.js`, and `content.js`. Do not select the ZIP file and do not select a parent folder containing the extracted folder.
+6. Select the extracted folder that directly contains `manifest.json`, `popup.html`, `popup.js`, `background.js`, and `offscreen.html`. Do not select the ZIP file and do not select a parent folder containing the extracted folder.
 7. Pin **Lecture Notebook AI** from Chrome’s extensions menu for quick access.
-8. Click the extension icon and choose **Open workspace**, or use the small `LN` shortcut added to ordinary webpages.
+8. Click the extension icon to open the widget. Choose **Open website** to launch the workspace, or choose **Start recording** to open Chrome's native picker and select a tab, window, or screen. Stop the recording from the widget; Chrome then saves a local WebM file.
 
 ### Updating the extension during development
 
-After changing extension files, return to `chrome://extensions` and click the extension’s **Reload** button. If you changed the manifest, reload the extension and refresh any open tabs.
+After changing extension files during local development, return to `chrome://extensions` and click the extension’s **Reload** button. If you changed the manifest, reload the extension and refresh any open tabs. A Load unpacked extension does not auto-update because it is a developer copy.
+
+For normal users, publish the extension through the Chrome Web Store. Chrome checks installed Web Store extensions for updates automatically, so users receive later versions without reinstalling. Each release should increment the manifest version and be submitted as a new Web Store package. A private/self-hosted installation can also use Chrome Enterprise’s update manifest, but a plain ZIP cannot update itself.
 
 ### Removing the extension
 
@@ -145,7 +147,7 @@ The extension files are in `extension/`. To recreate the downloadable archive lo
 
 ```bash
 rm -f client/public/lecture-notebook-ai-extension.zip
-cd extension && zip -r ../client/public/lecture-notebook-ai-extension.zip manifest.json popup.html popup.js content.js icons
+cd extension && zip -r ../client/public/lecture-notebook-ai-extension.zip manifest.json popup.html popup.js background.js offscreen.html offscreen.js privacy-policy.md store-listing.md icons
 ```
 
 ## Project structure
@@ -168,7 +170,7 @@ LICENSE                         MIT License
 
 ## Current limitations
 
-Speech recognition and screen capture still vary by browser and operating system, and Tesseract.js may be slower on large images; language packs are cached after their first successful scan. The extension now adds consent-gated controls on media pages without joining meetings or bypassing host controls. Production-distribution metadata and a public privacy policy are included at [`/privacy.html`](https://lecturenoteb-hxgiwwjj.manus.space/privacy.html). The current extension remains a launcher and page shortcut and does not inject transcript controls into video-conferencing applications. Chrome Web Store submission remains a release step.
+Speech recognition and screen capture still vary by browser and operating system, and Tesseract.js may be slower on large images; language packs are cached after their first successful scan. The extension records the user-selected desktop source locally but does not transcribe the recording or inject controls into video-conferencing applications. Production-distribution metadata and a public privacy policy are included at [`/privacy.html`](https://lecturenoteb-hxgiwwjj.manus.space/privacy.html). Chrome Web Store submission remains a release step.
 
 ## License
 

@@ -6,27 +6,39 @@
   <title>Lecture Notebook AI</title>
   <style>
     :root { color-scheme: dark; }
-    body { width: 286px; margin: 0; padding: 16px; background: #08111b; color: #e8f7f5; font: 14px system-ui, sans-serif; }
-    header { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
-    img { width: 38px; height: 38px; border-radius: 10px; }
-    h1 { font: 700 17px Georgia, serif; margin: 0; }
-    p { color: #89a8b2; line-height: 1.45; font-size: 12px; margin: 8px 0 14px; }
-    button { width: 100%; border: 0; border-radius: 9px; padding: 11px; background: #5be7ff; color: #061019; font-weight: 800; cursor: pointer; }
+    * { box-sizing: border-box; }
+    body { width: 308px; margin: 0; padding: 18px; background: #08111b; color: #e8f7f5; font: 14px system-ui, sans-serif; }
+    header { display: flex; gap: 11px; align-items: center; }
+    header img { width: 42px; height: 42px; border-radius: 11px; }
+    h1 { margin: 0; font: 700 18px Georgia, serif; }
+    .mark { color: #5be7ff; font-size: 10px; font-weight: 800; letter-spacing: .14em; margin-bottom: 12px; }
+    .intro { color: #9ab2b9; line-height: 1.45; font-size: 12px; margin: 13px 0 16px; }
+    .options { display: grid; gap: 9px; }
+    button { width: 100%; border: 0; border-radius: 10px; padding: 12px; color: #061019; background: #5be7ff; font-weight: 800; cursor: pointer; text-align: left; }
     button:hover { background: #a0f5ff; }
-    .secondary { margin-top: 8px; color: #b9ded1; background: #16313a; }
-    .secondary:hover { background: #204955; }
-    .mark { color: #5be7ff; font-size: 10px; font-weight: 800; letter-spacing: .12em; }
-    .status { min-height: 16px; color: #9dd8c7; font-size: 11px; margin-top: 10px; }
-    a { color: #5be7ff; font-size: 11px; }
+    button.secondary { color: #c9eee5; background: #16313a; }
+    button.secondary:hover { background: #20505b; }
+    button.stop { color: #fff2f0; background: #b85662; }
+    button.stop:hover { background: #d97079; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .option-title { display: block; font-size: 13px; }
+    .option-copy { display: block; margin-top: 3px; color: #42636b; font-size: 10px; font-weight: 600; }
+    .secondary .option-copy, .stop .option-copy { color: #9cc6c0; }
+    .status { min-height: 17px; margin-top: 13px; color: #9dd8c7; font-size: 11px; line-height: 1.4; }
+    .privacy { display: block; margin-top: 11px; color: #5be7ff; font-size: 11px; text-decoration: none; }
+    .privacy:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="mark">LOCAL-FIRST · V1.02</div>
+  <div class="mark">LOCAL-FIRST · V1.3</div>
   <header><img src="icons/icon128.png" alt="Lecture Notebook AI logo"><h1>Lecture Notebook AI</h1></header>
-  <p>Open the workspace or use the page dock on media pages to make a permission-based voice note. Nothing records automatically.</p>
-  <button id="open">Open workspace</button>
-  <button id="privacy" class="secondary">Privacy policy</button>
-  <div id="status" class="status" role="status"></div>
+  <p class="intro">Choose what you want to do. Recording always opens Chrome&apos;s picker first, and nothing starts without your confirmation.</p>
+  <div class="options">
+    <button id="open" type="button"><span class="option-title">Open website</span><span class="option-copy">Launch the full study workspace</span></button>
+    <button id="record" class="secondary" type="button"><span class="option-title">Start recording</span><span class="option-copy">Choose a tab, window, or screen</span></button>
+  </div>
+  <div id="status" class="status" role="status">Ready when you are.</div>
+  <a class="privacy" href="https://lecturenoteb-hxgiwwjj.manus.space/privacy.html" target="_blank" rel="noreferrer">Privacy policy</a>
   <script src="popup.js"></script>
 </body>
 </html>

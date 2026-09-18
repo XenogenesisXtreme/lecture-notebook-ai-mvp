@@ -2,13 +2,13 @@
   "manifest_version": 3,
   "name": "Lecture Notebook AI",
   "short_name": "Lecture Notebook AI",
-  "version": "1.2.0",
-  "description": "Capture permission-based lecture notes locally from media pages, then open the Lecture Notebook AI workspace.",
+  "version": "1.3.0",
+  "description": "Open Lecture Notebook AI or record a user-selected tab, window, or screen locally.",
   "author": "Xenogenesis Xtreme",
   "homepage_url": "https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp",
-  "minimum_chrome_version": "114",
+  "minimum_chrome_version": "109",
   "action": {
-    "default_title": "Open Lecture Notebook AI",
+    "default_title": "Lecture Notebook AI",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -17,15 +17,11 @@
       "128": "icons/icon128.png"
     }
   },
-  "permissions": ["storage", "activeTab"],
-  "host_permissions": ["https://*.manus.space/*", "https://*.manus.computer/*"],
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ],
+  "permissions": ["desktopCapture", "downloads", "offscreen", "storage"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
