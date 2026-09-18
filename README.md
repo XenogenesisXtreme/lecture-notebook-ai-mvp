@@ -69,7 +69,7 @@ Chrome does not install a local extension by opening a ZIP directly. The ZIP con
 
 ### Updating the extension during development
 
-After changing extension files during local development, return to `chrome://extensions` and click the extension’s **Reload** button. If you changed the manifest, reload the extension and refresh any open tabs. A Load unpacked extension does not auto-update because it is a developer copy.
+Users do **not** need to uninstall and reinstall the widget after downloading an updated version. For a Load unpacked installation, replace the contents of the local extension folder with the updated files, open `chrome://extensions`, find **Lecture Notebook AI**, and click its **Reload** button. If you changed the manifest, also refresh any open tabs. A Load unpacked extension does not auto-update because it is a developer copy, but the **Reload** button applies the update in place.
 
 For normal users, publish the extension through the Chrome Web Store. Chrome checks installed Web Store extensions for updates automatically, so users receive later versions without reinstalling. Each release should increment the manifest version and be submitted as a new Web Store package. A private/self-hosted installation can also use Chrome Enterprise’s update manifest, but a plain ZIP cannot update itself.
 
