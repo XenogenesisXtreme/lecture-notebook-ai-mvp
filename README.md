@@ -1,6 +1,6 @@
 # Lecture Notebook AI
 
-> **Beta · Version 1.02** — This project is actively evolving. Features may change, and bugs or unexpected browser-specific behavior may still occur. Please report issues through the repository issue tracker.
+> **Beta · Version 1.04** — This project is actively evolving. Features may change, and bugs or unexpected browser-specific behavior may still occur. Please report issues through the repository issue tracker.
 
 <p align="center"><img src="brand/logo.png" alt="Lecture Notebook AI logo" width="128"></p>
 
@@ -58,7 +58,7 @@ The Chrome extension requests `desktopCapture`, `downloads`, `offscreen`, and `s
 
 Chrome does not install a local extension by opening a ZIP directly. The ZIP contains the extension source, and Chrome’s developer mode uses the **extracted folder**.
 
-1. Download `lecture-notebook-ai-extension.zip` from the web app’s **Chrome extension** action or from this repository’s release/download files.
+1. Download the version-labelled `lecture-notebook-ai-extension.zip` from the web app’s **Chrome extension** action or from this repository’s release/download files. The website adds a version query to prevent an older cached ZIP from being reused after redeployment.
 2. Extract the ZIP into a normal folder. On Windows, right-click the ZIP and choose **Extract All**. On macOS, double-click it. On Linux, use your archive manager or `unzip`.
 3. Open Chrome and navigate to `chrome://extensions`.
 4. Turn on **Developer mode** in the upper-right corner.
@@ -67,6 +67,8 @@ Chrome does not install a local extension by opening a ZIP directly. The ZIP con
 7. Pin **Lecture Notebook AI** from Chrome’s extensions menu for quick access.
 8. Click the extension icon to open the widget. Choose **Open website** to launch the workspace, or choose **Start recording** to open Chrome's native picker and select a tab, window, or screen. Stop the recording from the widget; Chrome saves a local WebM file and opens the workspace's review view with the recording handed into the browser-local media queue.
 9. In the workspace, review or remove the received recording, then add/import a timestamped transcript to generate grounded notebook sections. The current static build does not yet transcribe raw WebM files automatically.
+
+The extension-to-workspace handoff is browser-local: after a recording finishes, the extension downloads the WebM and opens the workspace review flow with the recording queued in the Media Review section. The current static frontend does not call an external AI transcription service, so raw WebM-to-transcript and AI note generation require an explicit transcript or a future AI-enabled backend; the app will not pretend that a recording has been transcribed when it has not.
 
 ### Updating the extension during development
 

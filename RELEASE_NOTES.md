@@ -1,10 +1,18 @@
-# Lecture Notebook AI · v1.02 Beta
+# Lecture Notebook AI · v1.04 Beta
 
-**Release date:** September 18, 2026
+**Release date:** September 19, 2026
 
 > This is a beta release. Browser support, OCR downloads, screen capture, and extension behavior can vary by platform. Please report bugs through the public GitHub issue tracker.
 
 ## Latest changes
+
+### Version and recording handoff fixes
+
+- Synchronized the website/package and extension manifest to **v1.04 / 1.4.0**.
+- Added a version query to the website’s extension ZIP link so redeployed sites do not keep serving a browser-cached v1.02 archive.
+- Added the missing website event listener that receives the extension’s WebM recording, creates a media asset, persists it in the local workspace, and sends the user to Media Review.
+- Added defensive handling for cancelled capture, unsupported files, missing recording payloads, duplicate delivery, and denied permissions.
+- Clarified that the current static build queues recordings for review but does not claim to perform AI transcription without an AI-enabled backend or explicit transcript input.
 
 ### Versioning and beta feedback
 
@@ -13,7 +21,7 @@
 
 ### Documentation and project status
 
-- Added a prominent **Beta · Version 1.02** status notice to the README.
+- Added a prominent **Beta · Version 1.04** status notice to the README.
 - Added a permanent link from the README to this latest-only release notes page, the complete changelog, and the MIT License.
 - Added a complete historical [`CHANGELOG.md`](CHANGELOG.md) covering every repository change since the initial project bootstrap.
 

@@ -69,3 +69,7 @@ Marked the project as **Beta · Version 1.02** in the README. Added latest-only 
 ## Version automation and beta feedback · current
 
 Added `scripts/bump-version.mjs` and the `pnpm version:bump` command to synchronize the package version, Chrome extension manifest version, README beta version, and latest release-notes heading/date. Added a visible **Report beta bug** action in the website header and quick-actions rail, a prefilled GitHub Issue URL, and a structured `.github/ISSUE_TEMPLATE/bug_report.md` template for reproducible beta reports.
+
+## v1.04 download and recording handoff fix · September 19, 2026
+
+Synchronized the website/package and extension manifest to v1.04 / 1.4.0. Added a version query to the downloadable ZIP link so redeployed websites avoid stale cached archives. Added the missing website listener for extension-delivered WebM recordings, local media-asset persistence, Media Review navigation, duplicate protection, unsupported-file handling, missing-payload handling, and permission/cancellation feedback. Documented that the static frontend queues recordings but does not claim AI transcription without an AI-enabled backend or explicit transcript input.
