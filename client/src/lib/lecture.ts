@@ -175,8 +175,79 @@ export function validateJsonShape(note: LectureNote) {
   return validateLecture(note).length === 0 && [note.learningObjectives, note.visualHighlights, note.keyTerms, note.reviewQuestions, note.examReview, note.uncertainItems, note.transcript].every(Array.isArray);
 }
 
+function cleanSentence(text: string) {
+  const cleaned = text.replace(/\s+/g, " ").trim();
+  return cleaned ? `${cleaned.charAt(0).toUpperCase()}${cleaned.slice(1).replace(/[.!?]+$/, "")}.` : "";
+}
+
+function topicHeading(lines: TranscriptLine[], index: number) {
+  const source = lines.find((line) => line.text.length > 12)?.text ?? `Lecture topic ${index + 1}`;
+  const words = source.replace(/[.!?]+/g, "").split(/\s+/).slice(0, 7).join(" ");
+  return words.length > 52 ? `${words.slice(0, 49).trim()}…` : words;
+}
+
+function definitionFromLine(text: string): Definition | null {
+  const match = text.match(/^(.{2,48}?)\s+(?:is|means|refers to|describes)\s+(.{8,})$/i);
+  return match ? { term: match[1].replace(/^(the|a|an)\s+/i, ""), meaning: cleanSentence(match[2]) } : null;
+}
+
+function buildGeneratedSection(lines: TranscriptLine[], index: number, total: number): LectureSection {
+  const start = lines[0]?.timestamp ?? "00:00:00";
+  const nextStart = lines[lines.length - 1]?.timestamp ?? start;
+  const heading = topicHeading(lines, index);
+  const sourceSentences = lines.map((line) => cleanSentence(line.text)).filter(Boolean);
+  const keyPoints = Array.from(new Set(sourceSentences.filter((sentence) => sentence.length > 24))).slice(0, 4);
+  const definitions = lines.map((line) => definitionFromLine(line.text)).filter((item): item is Definition => Boolean(item)).slice(0, 3);
+  const formulas = lines.map((line) => line.text.trim()).filter((line) => /[=÷×]|\bformula\b|\bcalculate\b/i.test(line)).slice(0, 2).map(cleanSentence);
+  const workedSource = lines.find((line) => /example|calculate|step|suppose|assume/i.test(line.text));
+  const emphasis = lines.filter((line) => /remember|important|key|exam|must|notice/i.test(line.text)).map((line) => cleanSentence(line.text)).slice(0, 3);
+  const questions = lines.filter((line) => line.text.includes("?")).map((line) => cleanSentence(line.text));
+  const mistakes = lines.filter((line) => /not|don't|cannot|avoid|instead/i.test(line.text)).map((line) => cleanSentence(line.text)).slice(0, 2);
+  return {
+    id: `topic-${index + 1}`,
+    heading,
+    timeStart: start,
+    timeEnd: index === total - 1 ? nextStart : formatTimestamp(Math.max(timestampSeconds(start), timestampSeconds(nextStart) - 1)),
+    explanation: sourceSentences.slice(0, 3).join(" ") || "This section is grounded in the timestamped source transcript.",
+    keyPoints: keyPoints.length ? keyPoints : ["Review the timestamped source moments in this section."],
+    definitions,
+    formulas,
+    workedExamples: workedSource ? [{ title: "Source example", steps: [cleanSentence(workedSource.text)] }] : [],
+    teacherEmphasis: emphasis,
+    commonMistakes: mistakes.length ? mistakes : ["Do not add claims that are not supported by the source transcript."],
+    linkedVisuals: [],
+  };
+}
+
 export function generateNotebookFromTranscript(text: string): LectureNote {
-  return { ...structuredClone(demoLecture), title: "Untitled lecture", overview: parseTranscript(text)[0]?.text ?? "", processingStatus: "Transcript imported · ready to edit", transcript: parseTranscript(text) };
+  const transcript = parseTranscript(text);
+  if (!transcript.length) return structuredClone(demoLecture);
+  const sectionCount = Math.min(4, Math.max(1, Math.ceil(transcript.length / 4)));
+  const chunkSize = Math.ceil(transcript.length / sectionCount);
+  const chunks = Array.from({ length: sectionCount }, (_, index) => transcript.slice(index * chunkSize, (index + 1) * chunkSize)).filter((chunk) => chunk.length);
+  const sections = chunks.map((chunk, index) => buildGeneratedSection(chunk, index, chunks.length));
+  const titleWords = transcript[0].text.replace(/[.!?]+/g, "").split(/\s+/).slice(0, 6).join(" ");
+  const title = `${titleWords || "Untitled lecture"}${titleWords ? " · Lecture notes" : ""}`;
+  const questions = transcript.filter((line) => line.text.includes("?")).map((line) => cleanSentence(line.text));
+  const objectives = sections.slice(0, 3).map((section) => `Explain the main idea in “${section.heading}.”`);
+  const definitions = sections.flatMap((section) => section.definitions);
+  const examReview = sections.flatMap((section) => section.teacherEmphasis).slice(0, 4);
+  const uncertainItems = transcript.filter((line) => line.speaker.toLowerCase().includes("student") || line.text.includes("?")).map((line) => ({ timestamp: line.timestamp, text: line.text }));
+  return {
+    title,
+    course: "Imported lecture · transcript source",
+    date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+    overview: cleanSentence(transcript.slice(0, 3).map((line) => line.text).join(" ")) || "A structured study notebook generated from the supplied transcript.",
+    processingStatus: "Transcript imported · structured notebook ready",
+    learningObjectives: objectives.length ? objectives : ["Review the main ideas and supporting evidence in the transcript."],
+    sections,
+    visualHighlights: [],
+    keyTerms: definitions,
+    reviewQuestions: questions.length ? questions.slice(0, 4) : sections.slice(0, 3).map((section) => `What is the most important idea in “${section.heading}”?`),
+    examReview: examReview.length ? examReview : sections.map((section) => `Revisit “${section.heading}” and check it against the source timestamps.`),
+    uncertainItems,
+    transcript: alignTranscriptToTopics(transcript, sections),
+  };
 }
 
 export function filterTranscript(transcript: TranscriptLine[], query: string) {

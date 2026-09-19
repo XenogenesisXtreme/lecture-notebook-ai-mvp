@@ -70,6 +70,10 @@ Chrome does not install a local extension by opening a ZIP directly. The ZIP con
 
 The extension-to-workspace handoff is browser-local: after a recording finishes, the extension downloads the WebM and opens the workspace review flow with the recording queued in the Media Review section. The current static frontend does not call an external AI transcription service, so raw WebM-to-transcript and AI note generation require an explicit transcript or a future AI-enabled backend; the app will not pretend that a recording has been transcribed when it has not.
 
+### Consistent notebook generation
+
+Every new transcript-based notebook now uses the same structured format as the sample notebook. The generator creates a cover title, overview, learning objectives, timestamped topic sections, key points, definitions, formula or calculation callouts when present, source examples, teacher emphasis, common-mistake guidance, exam-review prompts, review questions, uncertainty markers, and transcript-to-topic alignment. The content is derived from the supplied transcript; unsupported fields remain clearly marked instead of being invented.
+
 ### Updating the extension during development
 
 Users do **not** need to uninstall and reinstall the widget after downloading an updated version. For a Load unpacked installation, replace the contents of the local extension folder with the updated files, open `chrome://extensions`, find **Lecture Notebook AI**, and click its **Reload** button. If you changed the manifest, also refresh any open tabs. A Load unpacked extension does not auto-update because it is a developer copy, but the **Reload** button applies the update in place.

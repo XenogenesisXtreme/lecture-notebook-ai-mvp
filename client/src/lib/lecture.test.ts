@@ -21,6 +21,19 @@ describe("lecture note foundation", () => {
     expect(demoLecture.uncertainItems[0].timestamp).toBe("00:09:11");
   });
 
+  it("generates the example-style study structure for every imported transcript", () => {
+    const note = generateNotebookFromTranscript("[00:00:00] Teacher: Photosynthesis is the process plants use to convert light energy.\n[00:02:00] Teacher: Remember the equation glucose = light + carbon dioxide.\n[00:04:00] Student: Is this always true?");
+    expect(note.processingStatus).toContain("structured notebook");
+    expect(note.sections.length).toBeGreaterThan(0);
+    expect(note.learningObjectives.length).toBeGreaterThan(0);
+    expect(note.sections[0].keyPoints.length).toBeGreaterThan(0);
+    expect(note.sections[0].definitions.length).toBeGreaterThan(0);
+    expect(note.sections[0].formulas.length).toBeGreaterThan(0);
+    expect(note.reviewQuestions.length).toBeGreaterThan(0);
+    expect(note.uncertainItems[0].timestamp).toBe("00:04:00");
+    expect(validateJsonShape(note)).toBe(true);
+  });
+
   it("merges sections by normalized heading", () => {
     expect(mergeSections([demoLecture.sections[0], { ...demoLecture.sections[0], id: "copy", heading: "ELASTICITY IS RESPONSIVENESS" }])).toHaveLength(1);
   });

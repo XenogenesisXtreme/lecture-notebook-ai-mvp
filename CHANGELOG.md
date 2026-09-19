@@ -73,3 +73,7 @@ Added `scripts/bump-version.mjs` and the `pnpm version:bump` command to synchron
 ## v1.04 download and recording handoff fix · September 19, 2026
 
 Synchronized the website/package and extension manifest to v1.04 / 1.4.0. Added a version query to the downloadable ZIP link so redeployed websites avoid stale cached archives. Added the missing website listener for extension-delivered WebM recordings, local media-asset persistence, Media Review navigation, duplicate protection, unsupported-file handling, missing-payload handling, and permission/cancellation feedback. Documented that the static frontend queues recordings but does not claim AI transcription without an AI-enabled backend or explicit transcript input.
+
+## Consistent example-style notebook generation · current
+
+Replaced the placeholder transcript import behavior with a transcript-driven structured notebook generator. Every imported transcript now receives an overview, learning objectives, timestamped topic sections, key points, definitions, formula/calculation callouts when present, source examples, teacher emphasis, common-mistake guidance, exam-review prompts, review questions, uncertainty markers, and transcript-to-topic alignment. Added regression coverage for the complete structure and schema validity.

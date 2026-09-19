@@ -14,6 +14,11 @@
 - Added defensive handling for cancelled capture, unsupported files, missing recording payloads, duplicate delivery, and denied permissions.
 - Clarified that the current static build queues recordings for review but does not claim to perform AI transcription without an AI-enabled backend or explicit transcript input.
 
+### Consistent notebook generation
+
+- Upgraded transcript imports so every new notebook follows the example structure: overview, objectives, timestamped topics, key points, definitions, formulas, examples, emphasis, common mistakes, exam review, review questions, uncertainty markers, and transcript alignment.
+- Added regression coverage to ensure imported content is structured rather than copied into a generic sample notebook.
+
 ### Versioning and beta feedback
 
 - Added `scripts/bump-version.mjs` and the `pnpm version:bump` command to synchronize package metadata, the Chrome manifest, README version text, and release-notes version/date.
