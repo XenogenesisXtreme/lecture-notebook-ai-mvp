@@ -8,7 +8,7 @@ Lecture Notebook AI is maintained by **Xenogenesis Xtreme**. This policy describ
 
 The extension does not sell personal information, serve behavioral advertising, or build a browsing profile. The current extension provides a popup widget with website and recording actions. It does not read page text, collect URLs, capture microphone input, or join meetings automatically.
 
-When the user clicks **Start recording**, Chrome's native picker asks the user to choose a tab, window, or screen. The selected media is recorded locally with the browser's MediaRecorder API, saved as a WebM download, and handed to the Lecture Notebook AI workspace for browser-local review when the user stops recording. The workspace does not upload the recording in this flow. No recording begins without that explicit action and selection.
+When the user clicks **Start recording**, Chrome's native picker asks the user to choose a tab, window, or screen. A visible toolbar is injected into the selected active tab with Pause/Resume, Save frame, and Stop and save controls. The selected media is recorded locally with the browser's MediaRecorder API, saved as a WebM download, and handed to the Lecture Notebook AI workspace for browser-local review when the user stops recording. Saved frames are downloaded locally as JPG files. The workspace does not upload the recording in this flow. No recording begins without that explicit action and selection.
 
 The web workspace can process information that a user intentionally provides, including transcript files, images, audio, video, screen-capture streams, speech-recognition results, OCR output, notebook edits, and review decisions. Capture and microphone access begin only after the user completes the consent checklist and accepts the browser’s permission prompt.
 
@@ -20,7 +20,7 @@ Tesseract.js language and worker assets may be downloaded by the browser on a fi
 
 ## Permissions
 
-The extension declares `desktopCapture`, `downloads`, `offscreen`, and `storage`. These permissions let Chrome show the user its tab, window, or screen picker, save the completed recording, keep MediaRecorder alive after the popup closes, and store transient recording state locally. The extension does not use them to monitor browsing activity or automatically access content.
+The extension declares `activeTab`, `desktopCapture`, `downloads`, `offscreen`, `scripting`, and `storage`. These permissions let Chrome show the user its tab, window, or screen picker, save the completed recording and frames, keep MediaRecorder alive after the popup closes, inject the visible toolbar into the selected tab, and store transient recording state locally. The extension does not use them to monitor browsing activity or automatically access content.
 
 ## Third parties
 

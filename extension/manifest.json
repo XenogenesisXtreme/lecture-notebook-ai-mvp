@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Lecture Notebook AI",
   "short_name": "Lecture Notebook AI",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Open Lecture Notebook AI or record a user-selected tab, window, or screen locally and open it for review.",
   "author": "Xenogenesis Xtreme",
   "homepage_url": "https://github.com/XenogenesisXtreme/lecture-notebook-ai-mvp",
@@ -17,7 +17,7 @@
       "128": "icons/icon128.png"
     }
   },
-  "permissions": ["desktopCapture", "downloads", "offscreen", "storage"],
+  "permissions": ["activeTab", "desktopCapture", "downloads", "offscreen", "scripting", "storage"],
   "host_permissions": ["https://lecturenoteb-hxgiwwjj.manus.space/*"],
   "background": {
     "service_worker": "background.js",

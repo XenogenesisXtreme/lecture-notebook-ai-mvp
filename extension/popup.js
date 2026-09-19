@@ -36,6 +36,7 @@ async function startRecording() {
 
   recordButton.disabled = true;
   setStatus("Choose a tab, window, or screen in Chrome&apos;s picker…");
+  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   chrome.desktopCapture.chooseDesktopMedia(["screen", "window", "tab", "audio"], async (streamId) => {
     recordButton.disabled = false;
     if (!streamId) {
@@ -43,7 +44,7 @@ async function startRecording() {
       return;
     }
     try {
-      await chrome.runtime.sendMessage({ type: "start-recording", streamId });
+      await chrome.runtime.sendMessage({ type: "start-recording", streamId, tabId: activeTab?.id });
       setRecordingState(true);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Could not start recording.");
